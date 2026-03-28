@@ -41,18 +41,27 @@ travelhub-gateway/
 
 1. **Cloud Armor** — WAF + DDoS + rate limiting — DESPLEGADO
 2. **VPC Firewall** — Segmentación de red — DESPLEGADO
-3. **API Gateway** — Validación JWT (firma RS256, issuer, audience, exp) — SPEC LISTA, PENDIENTE DEPLOY
+3. **API Gateway** — Validación JWT — DESPLEGADO
 4. **Cloud SQL** — PostgreSQL 15 (IP privada 10.100.0.3) — DESPLEGADO
 5. **Chain of Responsibility** — Middleware Python (RBAC, MFA, rate limit app) — va en cada microservicio
-6. **Deploy gateway** — Bloqueado hasta tener URLs reales de Cloud Run
-7. **Asociar Cloud Armor a LB** — Bloqueado hasta tener Load Balancer
+6. **Asociar Cloud Armor a LB** — Pendiente hasta tener Load Balancer
 
-## Microservicios Cloud Run (aún no desplegados)
+## URLs del entorno DEV
 
-Usar URLs placeholder con `HASH` hasta tener las reales:
+Estas URLs son del entorno de desarrollo. En producción serán distintas.
 
-- user-services, search-services, booking-services
-- payments-services, inventory-services, notification-services
+- **Gateway:** `https://travelhub-gateway-1yvtqj7r.uc.gateway.dev`
+- **user-services:** `https://user-services-154299161799.us-central1.run.app`
+- Los demás microservicios tienen PLACEHOLDER en `gateway/openapi-spec.yaml` — actualizar cuando se desplieguen
+
+## Microservicios Cloud Run
+
+Desplegados:
+- user-services (`https://user-services-154299161799.us-central1.run.app`)
+
+Pendientes (PLACEHOLDER en openapi-spec.yaml):
+- search-services, booking-services, payments-services
+- inventory-services, notification-services
 - pms-integration-services, shopping-cart-services
 
 ## Convenciones de scripts bash

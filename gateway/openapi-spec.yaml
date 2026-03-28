@@ -32,7 +32,7 @@ securityDefinitions:
     type: "oauth2"
     x-google-issuer: "https://auth.travelhub.app"
     x-google-audiences: "travelhub-api"
-    x-google-jwks_uri: "https://user-services-PLACEHOLDER.a.run.app/.well-known/jwks.json"
+    x-google-jwks_uri: "https://user-services-154299161799.us-central1.run.app/.well-known/jwks.json"
 
 # =============================================================================
 # Rutas — Microservicios
@@ -46,7 +46,7 @@ paths:
       operationId: "authLogin"
       summary: "Login — no requiere JWT"
       x-google-backend:
-        address: "https://user-services-PLACEHOLDER.a.run.app"
+        address: "https://user-services-154299161799.us-central1.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         200:
@@ -57,7 +57,7 @@ paths:
       operationId: "authRegister"
       summary: "Registro de usuario — no requiere JWT"
       x-google-backend:
-        address: "https://user-services-PLACEHOLDER.a.run.app"
+        address: "https://user-services-154299161799.us-central1.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         201:
@@ -68,7 +68,7 @@ paths:
       operationId: "authRefresh"
       summary: "Refresh token — no requiere JWT (usa refresh token)"
       x-google-backend:
-        address: "https://user-services-PLACEHOLDER.a.run.app"
+        address: "https://user-services-154299161799.us-central1.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         200:
@@ -79,7 +79,7 @@ paths:
       operationId: "getJwks"
       summary: "Endpoint JWKS publico"
       x-google-backend:
-        address: "https://user-services-PLACEHOLDER.a.run.app"
+        address: "https://user-services-154299161799.us-central1.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         200:
@@ -308,7 +308,7 @@ paths:
       security:
         - travelhub_jwt: []
       x-google-backend:
-        address: "https://user-services-PLACEHOLDER.a.run.app"
+        address: "https://user-services-154299161799.us-central1.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       parameters:
         - name: path

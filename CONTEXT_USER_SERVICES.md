@@ -258,12 +258,26 @@ gcloud run deploy user-services \
 | Firewall | Desplegado | 9 reglas (DENY ALL default) |
 | Cloud SQL | Desplegado | `travelhub-db` PostgreSQL 15 — IP privada `10.100.0.3` |
 | Private Access | Desplegado | Private Service Connection (10.100.0.0/20) |
-| API Gateway | **Spec lista, NO desplegado** | Espera URLs reales de Cloud Run |
+| API Gateway | Desplegado | `travelhub-gateway-1yvtqj7r.uc.gateway.dev` |
 
 ---
 
-## 13. Post-deploy: qué necesita el equipo de infra
+## 13. URLs entorno DEV
 
-Una vez desplegado user-services, reportar la **URL de Cloud Run** (formato `https://user-services-XXXXX-uc.a.run.app`) para:
-1. Actualizar `gateway/openapi-spec.yaml` (reemplazar PLACEHOLDER)
-2. Desplegar el API Gateway
+Estas URLs son del entorno de desarrollo. En producción serán distintas.
+
+| Servicio | URL DEV |
+|---|---|
+| API Gateway | `https://travelhub-gateway-1yvtqj7r.uc.gateway.dev` |
+| user-services | `https://user-services-154299161799.us-central1.run.app` |
+
+Los demás microservicios tienen PLACEHOLDER en `gateway/openapi-spec.yaml` — se actualizan cuando se desplieguen.
+
+---
+
+## 14. Post-deploy: qué necesita el equipo de infra
+
+Cuando se desplieguen nuevos microservicios, reportar la **URL de Cloud Run** para:
+
+1. Actualizar `gateway/openapi-spec.yaml` (reemplazar PLACEHOLDER del servicio)
+2. Redesplegar el API Gateway con la nueva config
