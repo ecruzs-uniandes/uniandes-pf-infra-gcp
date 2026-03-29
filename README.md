@@ -10,8 +10,17 @@ Repositorio de infraestructura de seguridad en GCP para la plataforma TravelHub.
 
 ## Arquitectura de Seguridad — Defensa en Profundidad
 
-```
+```text
 Internet
+   |
+   v
+[ apitravelhub.site -> 136.110.223.156 ]
+   |
+   v
++------------------------------------------+
+|  LOAD BALANCER (HTTPS)                   |
+|  SSL termination, forwarding rule        |
++------------------------------------------+
    |
    v
 +------------------------------------------+
@@ -48,6 +57,26 @@ Cloud Run Microservices
 ---
 
 ## Componentes Desplegados
+
+### Load Balancer — Punto de Entrada
+
+**Recursos:**
+
+| Recurso | Nombre | Funcion |
+|---|---|---|
+| IP Estatica Global | `travelhub-lb-ip` | Direccion fija: 136.110.223.156 |
+| Internet NEG | `travelhub-gateway-neg` | Apunta al hostname del API Gateway |
+| Backend Service | `travelhub-backend-service` | Conecta NEG + Cloud Armor |
+| URL Map | `travelhub-url-map` | Enruta todo al backend service |
+| SSL Certificate | `travelhub-ssl-cert` | Self-signed (dev). En prod: managed con dominio |
+| HTTPS Proxy | `travelhub-https-proxy` | Termina SSL |
+| Forwarding Rule | `travelhub-forwarding-rule` | Conecta IP estatica con proxy |
+
+El Load Balancer recibe todo el trafico HTTPS en la IP estatica, termina SSL, pasa por Cloud Armor (WAF) y reenvía al API Gateway. Se configura un custom header `Host` apuntando al hostname del gateway para que el routing funcione correctamente.
+
+**Script:** `deploy/deploy-load-balancer.sh`
+
+---
 
 ### Capa 1 — Cloud Armor (WAF + DDoS)
 
@@ -217,7 +246,8 @@ uniandes-pf-infra-gcp/
 │   └── setup-cloudsql.sh           # Cloud SQL PostgreSQL
 ├── deploy/
 │   ├── deploy-gateway.sh           # Despliegue del API Gateway
-│   └── deploy-cloud-armor.sh       # Asociar Cloud Armor al Load Balancer
+│   ├── deploy-load-balancer.sh     # IP estatica + LB + NEG + Cloud Armor
+│   └── deploy-cloud-armor.sh       # Asociar Cloud Armor (standalone, sin LB)
 ├── tests/
 │   ├── test_cloud_armor.sh         # Tests de reglas WAF
 │   └── test_firewall_rules.sh      # Tests de reglas de firewall
@@ -232,10 +262,13 @@ uniandes-pf-infra-gcp/
 
 Estas URLs corresponden al entorno de desarrollo. En produccion seran distintas.
 
-| Servicio | URL |
-|---|---|
-| API Gateway | https://travelhub-gateway-1yvtqj7r.uc.gateway.dev |
-| user-services | https://user-services-154299161799.us-central1.run.app |
+| Servicio | URL | Notas |
+|---|---|---|
+| Entrada (LB) | https://apitravelhub.site | IP estatica 136.110.223.156, cert SSL managed |
+| API Gateway (directo) | https://travelhub-gateway-1yvtqj7r.uc.gateway.dev | Acceso sin pasar por Cloud Armor |
+| user-services | https://user-services-154299161799.us-central1.run.app | Acceso directo a Cloud Run |
+
+El punto de entrada para consumidores debe ser siempre la IP del Load Balancer, ya que es la unica ruta que pasa por todas las capas de seguridad (Cloud Armor + JWT).
 
 Los demas microservicios tienen PLACEHOLDER en `gateway/openapi-spec.yaml`. Cuando se desplieguen, actualizar las URLs y redesplegar el gateway.
 
@@ -284,8 +317,8 @@ bash database/setup-cloudsql.sh
 # 6. API Gateway (requiere URLs de Cloud Run)
 bash deploy/deploy-gateway.sh
 
-# 7. Asociar Cloud Armor al Load Balancer (requiere LB)
-bash deploy/deploy-cloud-armor.sh
+# 7. Load Balancer + IP estatica + Cloud Armor asociado
+bash deploy/deploy-load-balancer.sh
 
 # 8. Verificacion
 bash tests/test_cloud_armor.sh
@@ -296,7 +329,6 @@ bash tests/test_firewall_rules.sh
 
 ## Pendientes
 
-- Asociar Cloud Armor al Load Balancer (requiere LB configurado)
 - Actualizar URLs de microservicios en `gateway/openapi-spec.yaml` conforme se desplieguen
 - Redesplegar gateway cuando se agreguen nuevos servicios
 - Configurar segunda region (southamerica-east1) para replica activo-activo

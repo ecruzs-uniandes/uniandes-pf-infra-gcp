@@ -13,6 +13,7 @@
 POST /api/v1/auth/login        → Autentica usuario, retorna JWT firmado
 POST /api/v1/auth/register     → Registra usuario nuevo
 POST /api/v1/auth/refresh      → Renueva access token usando refresh token
+GET /api/v1/auth/me            → Ontiene informacion del usuarios debe ir con token
 GET  /.well-known/jwks.json    → Expone clave pública JWKS (el gateway la consume)
 GET  /api/v1/admin/{path}      → Panel admin (protegido por JWT + RBAC)
 GET  /health                   → Health check para GCP
@@ -259,6 +260,7 @@ gcloud run deploy user-services \
 | Cloud SQL | Desplegado | `travelhub-db` PostgreSQL 15 — IP privada `10.100.0.3` |
 | Private Access | Desplegado | Private Service Connection (10.100.0.0/20) |
 | API Gateway | Desplegado | `travelhub-gateway-1yvtqj7r.uc.gateway.dev` |
+| Load Balancer | Desplegado | IP estatica `136.110.223.156` + Cloud Armor asociado |
 
 ---
 
@@ -268,8 +270,11 @@ Estas URLs son del entorno de desarrollo. En producción serán distintas.
 
 | Servicio | URL DEV |
 |---|---|
+| Entrada (LB) | `https://apitravelhub.site` (IP 136.110.223.156, cert SSL managed) |
 | API Gateway | `https://travelhub-gateway-1yvtqj7r.uc.gateway.dev` |
 | user-services | `https://user-services-154299161799.us-central1.run.app` |
+
+El punto de entrada para consumidores debe ser la IP del LB, ya que es la unica ruta que pasa por todas las capas de seguridad.
 
 Los demás microservicios tienen PLACEHOLDER en `gateway/openapi-spec.yaml` — se actualizan cuando se desplieguen.
 

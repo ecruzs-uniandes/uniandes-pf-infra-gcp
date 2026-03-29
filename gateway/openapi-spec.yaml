@@ -74,6 +74,17 @@ paths:
         200:
           description: "Nuevo access token emitido"
 
+  /health:
+    get:
+      operationId: "healthCheck"
+      summary: "Health check — no requiere JWT"
+      x-google-backend:
+        address: "https://user-services-154299161799.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200:
+          description: "Servicio saludable"
+
   /.well-known/jwks.json:
     get:
       operationId: "getJwks"
@@ -86,6 +97,21 @@ paths:
           description: "JWKS document"
 
   # ---------- Rutas PROTEGIDAS (requieren JWT valido) ----------
+
+  /api/v1/auth/me:
+    get:
+      operationId: "getUserInfo"
+      summary: "Informacion del usuario autenticado"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://user-services-154299161799.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200:
+          description: "Informacion del usuario autenticado"
+        401:
+          description: "JWT invalido o expirado — rechazado por gateway"
 
   /api/v1/search/{path}:
     get:
