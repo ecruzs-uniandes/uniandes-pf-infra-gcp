@@ -13,6 +13,7 @@
 POST /api/v1/auth/login        → Autentica usuario, retorna JWT firmado
 POST /api/v1/auth/register     → Registra usuario nuevo
 POST /api/v1/auth/refresh      → Renueva access token usando refresh token
+GET /api/v1/auth/me            → Ontiene informacion del usuarios debe ir con token
 GET  /.well-known/jwks.json    → Expone clave pública JWKS (el gateway la consume)
 GET  /api/v1/admin/{path}      → Panel admin (protegido por JWT + RBAC)
 GET  /health                   → Health check para GCP
