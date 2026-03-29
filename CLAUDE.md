@@ -43,16 +43,23 @@ travelhub-gateway/
 2. **VPC Firewall** — Segmentación de red — DESPLEGADO
 3. **API Gateway** — Validación JWT — DESPLEGADO
 4. **Cloud SQL** — PostgreSQL 15 (IP privada 10.100.0.3) — DESPLEGADO
-5. **Chain of Responsibility** — Middleware Python (RBAC, MFA, rate limit app) — va en cada microservicio
-6. **Asociar Cloud Armor a LB** — Pendiente hasta tener Load Balancer
+5. **Load Balancer** — IP estática + SSL + Cloud Armor asociado — DESPLEGADO
+6. **Chain of Responsibility** — Middleware Python (RBAC, MFA, rate limit app) — va en cada microservicio
 
 ## URLs del entorno DEV
 
 Estas URLs son del entorno de desarrollo. En producción serán distintas.
 
-- **Gateway:** `https://travelhub-gateway-1yvtqj7r.uc.gateway.dev`
+- **Entrada (LB):** `https://apitravelhub.site` (IP estática 136.110.223.156, cert SSL managed)
+- **Gateway (directo):** `https://travelhub-gateway-1yvtqj7r.uc.gateway.dev`
 - **user-services:** `https://user-services-154299161799.us-central1.run.app`
 - Los demás microservicios tienen PLACEHOLDER en `gateway/openapi-spec.yaml` — actualizar cuando se desplieguen
+
+## Flujo de red completo
+
+```text
+apitravelhub.site → 136.110.223.156 (IP estática) → Load Balancer (HTTPS) → Cloud Armor (WAF) → API Gateway (JWT) → Cloud Run
+```
 
 ## Microservicios Cloud Run
 
