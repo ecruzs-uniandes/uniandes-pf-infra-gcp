@@ -17,7 +17,7 @@ info:
     Gateway de entrada para TravelHub. Valida JWT a nivel de infraestructura
     y rutea a microservicios en Cloud Run.
 
-host: "travelhub-gateway-PLACEHOLDER.a.run.app"
+host: "travelhub-gateway-1yvtqj7r.uc.gateway.dev"
 basePath: "/"
 schemes:
   - "https"
@@ -32,7 +32,7 @@ securityDefinitions:
     type: "oauth2"
     x-google-issuer: "https://auth.travelhub.app"
     x-google-audiences: "travelhub-api"
-    x-google-jwks_uri: "https://user-services-154299161799.us-central1.run.app/.well-known/jwks.json"
+    x-google-jwks_uri: "https://user-services-ridyy4wz4q-uc.a.run.app/.well-known/jwks.json"
 
 # =============================================================================
 # Rutas — Microservicios
@@ -46,7 +46,7 @@ paths:
       operationId: "authLogin"
       summary: "Login — no requiere JWT"
       x-google-backend:
-        address: "https://user-services-154299161799.us-central1.run.app"
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         200:
@@ -57,7 +57,7 @@ paths:
       operationId: "authRegister"
       summary: "Registro de usuario — no requiere JWT"
       x-google-backend:
-        address: "https://user-services-154299161799.us-central1.run.app"
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         201:
@@ -68,7 +68,7 @@ paths:
       operationId: "authRefresh"
       summary: "Refresh token — no requiere JWT (usa refresh token)"
       x-google-backend:
-        address: "https://user-services-154299161799.us-central1.run.app"
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         200:
@@ -79,7 +79,7 @@ paths:
       operationId: "healthCheck"
       summary: "Health check — no requiere JWT"
       x-google-backend:
-        address: "https://user-services-154299161799.us-central1.run.app"
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         200:
@@ -90,7 +90,7 @@ paths:
       operationId: "getJwks"
       summary: "Endpoint JWKS publico"
       x-google-backend:
-        address: "https://user-services-154299161799.us-central1.run.app"
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         200:
@@ -105,11 +105,54 @@ paths:
       security:
         - travelhub_jwt: []
       x-google-backend:
-        address: "https://user-services-154299161799.us-central1.run.app"
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         200:
           description: "Informacion del usuario autenticado"
+        401:
+          description: "JWT invalido o expirado — rechazado por gateway"
+    put:
+      operationId: "updateUserProfile"
+      summary: "Actualizar perfil del usuario autenticado"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200:
+          description: "Perfil actualizado"
+        401:
+          description: "JWT invalido o expirado — rechazado por gateway"
+
+  /api/v1/auth/mfa/setup:
+    post:
+      operationId: "mfaSetup"
+      summary: "Generar secreto TOTP para MFA"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200:
+          description: "Secreto TOTP generado"
+        401:
+          description: "JWT invalido o expirado — rechazado por gateway"
+
+  /api/v1/auth/mfa/verify:
+    post:
+      operationId: "mfaVerify"
+      summary: "Verificar codigo TOTP y activar MFA"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200:
+          description: "MFA activado"
         401:
           description: "JWT invalido o expirado — rechazado por gateway"
 
@@ -334,7 +377,7 @@ paths:
       security:
         - travelhub_jwt: []
       x-google-backend:
-        address: "https://user-services-154299161799.us-central1.run.app"
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       parameters:
         - name: path
