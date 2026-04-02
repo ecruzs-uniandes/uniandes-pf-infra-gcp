@@ -13,7 +13,10 @@
 POST /api/v1/auth/login        → Autentica usuario, retorna JWT firmado
 POST /api/v1/auth/register     → Registra usuario nuevo
 POST /api/v1/auth/refresh      → Renueva access token usando refresh token
-GET /api/v1/auth/me            → Ontiene informacion del usuarios debe ir con token
+GET  /api/v1/auth/me           → Perfil del usuario autenticado
+PUT  /api/v1/auth/me           → Actualizar perfil (nombre, password, telefono)
+POST /api/v1/auth/mfa/setup    → Generar secreto TOTP para MFA
+POST /api/v1/auth/mfa/verify   → Verificar código TOTP y activar MFA
 GET  /.well-known/jwks.json    → Expone clave pública JWKS (el gateway la consume)
 GET  /api/v1/admin/{path}      → Panel admin (protegido por JWT + RBAC)
 GET  /health                   → Health check para GCP
@@ -198,46 +201,12 @@ pydantic>=2.0.0
 
 ---
 
-## 10. Base de datos — Cloud SQL PostgreSQL
-
-Instancia ya desplegada en la VPC con IP privada (sin acceso público).
-
-| Campo | Valor |
-|---|---|
-| Instancia | `travelhub-db` |
-| Motor | PostgreSQL 15 |
-| Tier | db-f1-micro (desarrollo) |
-| IP Privada | `10.100.0.3` |
-| Base de datos | `travelhub` |
-| Usuario | `travelhub_app` |
-| Password | `lALk8rAOj1TSltRQzGavZdBCrSu67ZJg` |
-
-Connection string:
-```
-postgresql://travelhub_app:lALk8rAOj1TSltRQzGavZdBCrSu67ZJg@10.100.0.3:5432/travelhub
-```
-
-Variables de entorno para el microservicio:
-```bash
-DATABASE_HOST=10.100.0.3
-DATABASE_PORT=5432
-DATABASE_NAME=travelhub
-DATABASE_USER=travelhub_app
-DATABASE_PASSWORD=lALk8rAOj1TSltRQzGavZdBCrSu67ZJg
-```
-
-**IMPORTANTE:** El microservicio DEBE usar `--vpc-connector=travelhub-connector` en el deploy para alcanzar la BD por IP privada.
-
----
-
-## 11. Deploy en Cloud Run — flags importantes
-
-Actualizar las variables de entorno con los datos de la BD:
+## 10. Deploy en Cloud Run — flags importantes
 
 ```bash
 gcloud run deploy user-services \
   --vpc-connector=travelhub-connector \
-  --set-env-vars "JWT_ISSUER=https://auth.travelhub.app,JWT_AUDIENCE=travelhub-api,DATABASE_HOST=10.100.0.3,DATABASE_PORT=5432,DATABASE_NAME=travelhub,DATABASE_USER=travelhub_app,DATABASE_PASSWORD=lALk8rAOj1TSltRQzGavZdBCrSu67ZJg" \
+  --set-env-vars "JWT_ISSUER=https://auth.travelhub.app,JWT_AUDIENCE=travelhub-api" \
   --allow-unauthenticated \
   --port 8000 \
   --region us-central1 \
@@ -250,39 +219,32 @@ gcloud run deploy user-services \
 
 ---
 
-## 12. Infra ya desplegada
+## 11. Infra desplegada
 
 | Capa | Estado | Recurso |
 |---|---|---|
 | Cloud Armor | Desplegado | `travelhub-security-policy` (WAF + rate limiting + geo-blocking) |
 | VPC | Desplegado | `travelhub-vpc` con 3 subnets + VPC connector |
 | Firewall | Desplegado | 9 reglas (DENY ALL default) |
-| Cloud SQL | Desplegado | `travelhub-db` PostgreSQL 15 — IP privada `10.100.0.3` |
-| Private Access | Desplegado | Private Service Connection (10.100.0.0/20) |
+| Cloud SQL | Desplegado | `travelhub-db` (PostgreSQL 15, IP privada `10.100.0.3`) |
+| Cloud Run | Desplegado | `user-services` con VPC connector |
 | API Gateway | Desplegado | `travelhub-gateway-1yvtqj7r.uc.gateway.dev` |
-| Load Balancer | Desplegado | IP estatica `136.110.223.156` + Cloud Armor asociado |
 
 ---
 
-## 13. URLs entorno DEV
+## 12. URLs del servicio desplegado
 
-Estas URLs son del entorno de desarrollo. En producción serán distintas.
-
-| Servicio | URL DEV |
+| Recurso | URL |
 |---|---|
-| Entrada (LB) | `https://apitravelhub.site` (IP 136.110.223.156, cert SSL managed) |
+| Cloud Run (directo) | `https://user-services-ridyy4wz4q-uc.a.run.app` |
 | API Gateway | `https://travelhub-gateway-1yvtqj7r.uc.gateway.dev` |
-| user-services | `https://user-services-154299161799.us-central1.run.app` |
-
-El punto de entrada para consumidores debe ser la IP del LB, ya que es la unica ruta que pasa por todas las capas de seguridad.
-
-Los demás microservicios tienen PLACEHOLDER en `gateway/openapi-spec.yaml` — se actualizan cuando se desplieguen.
+| JWKS | `https://user-services-ridyy4wz4q-uc.a.run.app/.well-known/jwks.json` |
 
 ---
 
-## 14. Post-deploy: qué necesita el equipo de infra
+## 13. Notas de integración gateway ↔ backend
 
-Cuando se desplieguen nuevos microservicios, reportar la **URL de Cloud Run** para:
-
-1. Actualizar `gateway/openapi-spec.yaml` (reemplazar PLACEHOLDER del servicio)
-2. Redesplegar el API Gateway con la nueva config
+- El API Gateway reemplaza el header `Authorization` con un OIDC token de servicio y mueve el JWT original del usuario a `X-Forwarded-Authorization`.
+- El middleware `TokenValidationFilter` lee primero `X-Forwarded-Authorization` y luego `Authorization` como fallback.
+- Las claves RSA se persisten via variable de entorno `RSA_PRIVATE_KEY_B64` (base64 del PEM). Se setea con `gcloud run services update`, no en `cloudbuild.yaml`.
+- Al redesplegar el servicio con una nueva clave RSA, hay que redesplegar la config del API Gateway para que refresque el JWKS cacheado.

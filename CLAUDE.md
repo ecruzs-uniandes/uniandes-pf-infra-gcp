@@ -52,7 +52,7 @@ Estas URLs son del entorno de desarrollo. En producción serán distintas.
 
 - **Entrada (LB):** `https://apitravelhub.site` (IP estática 136.110.223.156, cert SSL managed)
 - **Gateway (directo):** `https://travelhub-gateway-1yvtqj7r.uc.gateway.dev`
-- **user-services:** `https://user-services-154299161799.us-central1.run.app`
+- **user-services:** `https://user-services-ridyy4wz4q-uc.a.run.app`
 - Los demás microservicios tienen PLACEHOLDER en `gateway/openapi-spec.yaml` — actualizar cuando se desplieguen
 
 ## Flujo de red completo
@@ -64,7 +64,7 @@ apitravelhub.site → 136.110.223.156 (IP estática) → Load Balancer (HTTPS) �
 ## Microservicios Cloud Run
 
 Desplegados:
-- user-services (`https://user-services-154299161799.us-central1.run.app`)
+- user-services (`https://user-services-ridyy4wz4q-uc.a.run.app`)
 
 Pendientes (PLACEHOLDER en openapi-spec.yaml):
 - search-services, booking-services, payments-services

@@ -40,7 +40,7 @@ Cloud SQL PostgreSQL (IP privada 10.100.0.3, solo accesible via VPC)
 |---|---|---|
 | IP Estatica | `travelhub-lb-ip` → 136.110.223.156 | Desplegado |
 | Load Balancer | `travelhub-backend-service` + `travelhub-url-map` + HTTPS proxy | Desplegado |
-| SSL Certificate | `travelhub-ssl-managed` (dominio apitravelhub.site) | Provisionando |
+| SSL Certificate | `travelhub-ssl-managed` (dominio apitravelhub.site) | Activo |
 | Cloud Armor | `travelhub-security-policy` (asociado al LB) | Desplegado |
 | VPC | `travelhub-vpc` (3 subnets + VPC connector) | Desplegado |
 | Firewall | 9 reglas (DENY ALL default) | Desplegado |
@@ -58,7 +58,7 @@ Estas URLs son del entorno de desarrollo. En produccion seran distintas.
 |---|---|
 | Entrada (LB + todas las capas) | `https://apitravelhub.site` |
 | API Gateway (directo, sin Cloud Armor) | `https://travelhub-gateway-1yvtqj7r.uc.gateway.dev` |
-| user-services (directo, sin gateway) | `https://user-services-154299161799.us-central1.run.app` |
+| user-services (directo, sin gateway) | `https://user-services-ridyy4wz4q-uc.a.run.app` |
 
 El punto de entrada para consumidores (frontend, mobile, integraciones) debe ser siempre `https://apitravelhub.site`, ya que es la unica ruta que pasa por todas las capas de seguridad.
 
@@ -138,6 +138,11 @@ NO valida: roles, MFA, logica de negocio (eso lo hace el Chain of Responsibility
 
 | Ruta | Backend |
 |---|---|
+| GET /api/v1/auth/me | user-services |
+| PUT /api/v1/auth/me | user-services |
+| POST /api/v1/auth/mfa/setup | user-services |
+| POST /api/v1/auth/mfa/verify | user-services |
+| GET /api/v1/admin/* | user-services |
 | /api/v1/search/* | search-services |
 | /api/v1/bookings/* | booking-services |
 | /api/v1/payments/* | payments-services |
@@ -145,7 +150,6 @@ NO valida: roles, MFA, logica de negocio (eso lo hace el Chain of Responsibility
 | /api/v1/notifications/* | notification-services |
 | /api/v1/pms/* | pms-integration-services |
 | /api/v1/cart/* | shopping-cart-services |
-| /api/v1/admin/* | user-services |
 
 ---
 
@@ -218,8 +222,14 @@ Header del JWT debe incluir `"kid": "travelhub-key-1"`.
 
 Middleware FastAPI que se ejecuta despues del gateway. El gateway ya valido firma + expiracion.
 
+**Nota:** El API Gateway reemplaza el header `Authorization` con un OIDC token de servicio y mueve el JWT original a `X-Forwarded-Authorization`. El middleware debe leer `X-Forwarded-Authorization` primero y `Authorization` como fallback.
+
 ```text
 Request con JWT en header Authorization: Bearer <token>
+  |
+  v
+Gateway reemplaza Authorization con OIDC token propio
+JWT original del usuario → X-Forwarded-Authorization
   |
   v
 Decodifica payload (SIN verificar firma, el gateway ya lo hizo)
@@ -266,7 +276,7 @@ Despues de desplegar un nuevo microservicio:
 
 | Servicio | Estado | URL |
 |---|---|---|
-| user-services | Desplegado | `https://user-services-154299161799.us-central1.run.app` |
+| user-services | Desplegado | `https://user-services-ridyy4wz4q-uc.a.run.app` |
 | search-services | Pendiente | PLACEHOLDER |
 | booking-services | Pendiente | PLACEHOLDER |
 | payments-services | Pendiente | PLACEHOLDER |
