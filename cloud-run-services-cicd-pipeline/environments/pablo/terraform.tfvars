@@ -11,7 +11,7 @@ project_id_gcp = "secret-lambda-491419-p2"
 ###########################################################
 ingress_type = "internal-and-cloud-load-balancing"
 security_type =  "allUsers"
-load_balancer_uri = "test" #Modificar para produccion
+load_balancer_uri = "http://url.com" #Modificar para produccion
 ###########################################################
 # CI/CD Variables
 ###########################################################
