@@ -20,3 +20,8 @@ gh_branch = "main"
 container_port = 8000
 gh_conn_name = "gh-conn" #En cloud build v2, se debe conectar a un host en la v2
 health_check_url = "/api2/health"
+env_vars = {
+    API_HOST = "0.0.0.0"
+    API_PORT = "8000"
+    TEST_NAME = "Api100000.1"
+}

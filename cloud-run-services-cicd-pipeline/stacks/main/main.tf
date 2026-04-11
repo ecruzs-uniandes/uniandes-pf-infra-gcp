@@ -95,4 +95,5 @@ module "cloudbuild_trigger" {
     security_type = var.security_type
     health_check_url = var.health_check_url
     load_balancer_uri = var.load_balancer_uri
+    env_vars = var.env_vars
 }

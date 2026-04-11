@@ -49,3 +49,7 @@ variable "health_check_url" {
 variable "load_balancer_uri" {
     type = string
 }
+
+variable "env_vars" {
+    type = map(string)
+}

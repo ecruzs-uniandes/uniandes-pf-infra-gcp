@@ -38,7 +38,6 @@ variable "service_name" {
     type = string
 }
 
-
 variable "ingress_type" {
     type = string
 }
@@ -53,4 +52,8 @@ variable "health_check_url" {
 
 variable "load_balancer_uri" {
     type = string
+}
+
+variable "env_vars" {
+    type = map(string)
 }
