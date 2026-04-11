@@ -5,24 +5,25 @@ module "artifact-registry" {
     region = var.region
 }
 
-module "app_service" {
-    source = "../../modules/cloud-run-service"
-    project_name = var.project_name
-    environment = var.environment
-    region = var.region
-    container_port = var.container_port
-    ingress_type = var.ingress_type
-    security_type = var.security_type
-}
+#module "app_service" {
+#    source = "../../modules/cloud-run-service"
+#    project_name = var.project_name
+#    environment = var.environment
+#    region = var.region
+#    container_port = var.container_port
+#    ingress_type = var.ingress_type
+#    security_type = var.security_type
+#}
 
-module "neg_app_service" {
-    source = "../../modules/neg"
-    project_name = var.project_name
-    environment = var.environment
-    region = var.region
-    service_name = module.app_service.service_name
-    endpoint_type = "SERVERLESS"
-}
+#module "neg_app_service" {
+#    source = "../../modules/neg"
+#    project_name = var.project_name
+#    environment = var.environment
+#    region = var.region
+#    
+#    #service_name = module.app_service.service_name
+#    endpoint_type = "SERVERLESS"
+#}
 
 module "clouddeploy_target_cloud_run" {
     source = "../../modules/cloud_deploy_targets"
@@ -66,7 +67,8 @@ module "cloudbuild_sa" {
     environment = var.environment
     region = var.region
     project_id_gcp = var.project_id_gcp
-    service_name = module.app_service.service_name
+    service_name = var.service_name
+    #service_name = module.app_service.service_name
 }
 
 module "cloudbuild_repository" {
@@ -89,7 +91,8 @@ module "cloudbuild_trigger" {
     artifact_repo = module.artifact-registry.repo_name
     repository_id = module.cloudbuild_repository.repository_id
     sa_id = module.cloudbuild_sa.sa_id
-    service_name = module.app_service.service_name
+    service_name = var.service_name
+    #service_name = module.app_service.service_name
     pipeline_name = module.clouddeploy_pipieline.pipeline_name
     ingress_type = var.ingress_type
     security_type = var.security_type

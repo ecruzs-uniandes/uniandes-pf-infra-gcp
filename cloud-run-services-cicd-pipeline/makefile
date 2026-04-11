@@ -1,11 +1,11 @@
 #Project configuration
-PROJECT-ID=secret-lambda-491419-p2
+PROJECT-ID=gen-lang-client-0930444414
 REGION=us-central1
 ZONE=us-central1-a
 #Terraform configuration
 ROOT := $(shell pwd)
 S3   := $(ROOT)/stacks/bucket_backend
-ENV  := $(ROOT)/environments/search_service
+ENV  := $(ROOT)/environments/login_service
 MAIN := $(ROOT)/stacks/main
 
 init-project:

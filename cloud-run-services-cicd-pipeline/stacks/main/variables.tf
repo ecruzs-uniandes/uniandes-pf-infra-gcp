@@ -53,3 +53,7 @@ variable "load_balancer_uri" {
 variable "env_vars" {
     type = map(string)
 }
+
+variable "service_name" {
+    type = string
+}
