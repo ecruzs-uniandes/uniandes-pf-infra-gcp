@@ -13,6 +13,8 @@ module "app_service" {
     container_port = var.container_port
     ingress_type = var.ingress_type
     security_type = var.security_type
+    vpc_name = var.vpc_name
+    subnet_name = var.subnet_name
 }
 
 module "neg_app_service" {
@@ -91,9 +93,11 @@ module "cloudbuild_trigger" {
     sa_id = module.cloudbuild_sa.sa_id
     service_name = module.app_service.service_name
     pipeline_name = module.clouddeploy_pipieline.pipeline_name
-    ingress_type = var.ingress_type
+    ingress_type = var.ingress_type_cicd
     security_type = var.security_type
     health_check_url = var.health_check_url
     load_balancer_uri = var.load_balancer_uri
     env_vars = var.env_vars
+    vpc_name = var.vpc_name
+    subnet_name = var.subnet_name
 }

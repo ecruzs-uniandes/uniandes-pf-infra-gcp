@@ -23,6 +23,8 @@ resource "google_cloudbuild_trigger" "github_trigger" {
         _SECURITY_TYPE  = var.security_type
         _HEALTH_CHECK   = var.health_check_url
         _LOAD_BALANCER  = var.load_balancer_uri
+        _SUBNET_NAME    = var.subnet_name
+        _VPC_NAME       = var.vpc_name
         _ENV_VARS       = jsonencode(var.env_vars)
     }
 

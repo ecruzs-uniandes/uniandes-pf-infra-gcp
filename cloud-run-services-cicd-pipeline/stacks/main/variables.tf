@@ -53,3 +53,15 @@ variable "load_balancer_uri" {
 variable "env_vars" {
     type = map(string)
 }
+
+variable "vpc_name" {
+    type = string
+}
+
+variable "subnet_name" {
+    type = string
+}
+
+variable "ingress_type_cicd" {
+    type = string
+}
