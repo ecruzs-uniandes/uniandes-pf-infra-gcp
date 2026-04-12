@@ -175,12 +175,13 @@ Rutas publicas (sin JWT):
 | POST /api/v1/auth/register | user-services |
 | POST /api/v1/auth/refresh | user-services |
 | GET /.well-known/jwks.json | user-services |
+| GET /search/search_rooms | search-services |
+| GET /search/search_cities | search-services |
 
 Rutas protegidas (requieren JWT valido):
 
 | Ruta | Backend |
 |---|---|
-| /api/v1/search/* | search-services |
 | /api/v1/bookings/* | booking-services |
 | /api/v1/payments/* | payments-services |
 | /api/v1/inventory/* | inventory-services |
