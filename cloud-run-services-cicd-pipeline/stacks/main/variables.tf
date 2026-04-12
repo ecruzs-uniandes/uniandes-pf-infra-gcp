@@ -49,3 +49,19 @@ variable "health_check_url" {
 variable "load_balancer_uri" {
     type = string
 }
+
+variable "env_vars" {
+    type = map(string)
+}
+
+variable "vpc_name" {
+    type = string
+}
+
+variable "subnet_name" {
+    type = string
+}
+
+variable "ingress_type_cicd" {
+    type = string
+}

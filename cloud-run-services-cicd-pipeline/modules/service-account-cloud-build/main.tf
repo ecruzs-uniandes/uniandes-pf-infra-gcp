@@ -11,14 +11,17 @@ resource "google_project_iam_member" "cloudbuild_sa_roles" {
         "roles/clouddeploy.operator",
         "roles/iam.serviceAccountUser"
     ])
+
     project = var.project_id_gcp
     role    = each.value
     member  = "serviceAccount:${google_service_account.cloudbuild_sa.email}"
 }
 
-resource "google_cloud_run_service_iam_member" "cloudbuild_sa_roles" {
-    project = var.project_id_gcp
-    service = var.service_name
-    role    = "roles/run.invoker"
-    member  = "serviceAccount:${google_service_account.cloudbuild_sa.email}"
+resource "google_cloud_run_v2_service_iam_member" "cloudbuild_sa_roles" {
+    project  = var.project_id_gcp
+    location = var.region
+    name     = var.service_name
+
+    role   = "roles/run.invoker"
+    member = "serviceAccount:${google_service_account.cloudbuild_sa.email}"
 }
