@@ -157,7 +157,80 @@ paths:
           200:
             description: "Resultados de busqueda"
 
+  /search/detail_room:
+      get:
+        operationId: "searchdetailRoom"
+        summary: "Busqueda de detalle habitaciones"
+        x-google-backend:
+          address: "https://dev-search-service-app-service-154299161799.us-central1.run.app"
+          path_translation: APPEND_PATH_TO_ADDRESS
+        parameters:
+          - name: habitacionId
+            in: query
+            required: true
+            type: string
+            description: "Habitacion"
+          - name: checkin
+            in: query
+            required: true
+            type: string
+            format: date
+            description: "Fecha de entrada (formato YYYY-MM-DD)"
+          - name: checkout
+            in: query
+            required: true
+            type: string
+            format: date
+            description: "Fecha de salida (formato YYYY-MM-DD)"
+        responses:
+          200:
+            description: "Resultados de busqueda"
+  
+  /api/v1/booking/reviews_hotel:
+      get:
+        operationId: "searchHotelReview"
+        summary: "Busqueda de resenas de habitaciones"
+        x-google-backend:
+          address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+          path_translation: APPEND_PATH_TO_ADDRESS
+        parameters:
+          - name: hotelId
+            in: query
+            required: true
+            type: string
+            description: "Hotel"
+        responses:
+          200:
+            description: "Resultados de busqueda"
+
+  /api/v1/booking/ping:
+    get:
+      operationId: "healthCheckBookingService"
+      summary: "Health check — no requiere JWT"
+      x-google-backend:
+        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200:
+          description: "Servicio saludable"
+
   # ---------- Rutas PROTEGIDAS (requieren JWT valido) ----------
+
+  /api/v1/booking/booking_room:
+    post:
+      operationId: "bookingRoom"
+      summary: "Reservar una habitacion"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200:
+          description: "Debug generado"
+        401:
+          description: "JWT invalido o expirado — rechazado por gateway"
+
 
   /api/v1/auth/me:
     get:
