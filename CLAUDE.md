@@ -130,6 +130,63 @@ Los recursos del proyecto DEV (`gen-lang-client-0930444414`) **no tienen prefijo
 
 **Consecuencia:** si ejecutas `scripts/0X-*.sh` contra el proyecto DEV, los scripts NO encontrarán los recursos legacy y crearán duplicados. Para el DEV actual, usa `gcloud` directo con los nombres legacy, o corre los scripts solo contra PROD donde el naming sí es correcto (`prod-travelhub-*`).
 
+## Microservicios — mapa completo
+
+> Contexto necesario para agregar rutas al gateway, crear secrets, o configurar WIF para un servicio nuevo.
+
+| Servicio | Puerto | URL DEV | URL PROD | SA deploy (DEV) |
+|---|---|---|---|---|
+| **user-services** | 8000 | `https://user-services-ridyy4wz4q-uc.a.run.app` | `https://user-services-qhweqfkejq-uc.a.run.app` | `github-deploy@gen-lang-client-0930444414.iam.gserviceaccount.com` |
+| **pms-integration-services** | 8001 | `https://pms-integration-services-ridyy4wz4q-uc.a.run.app` | ❌ | `github-deploy-pms-int@gen-lang-client-0930444414.iam.gserviceaccount.com` |
+| **pms-sync-worker** | 8002 | `https://pms-sync-worker-ridyy4wz4q-uc.a.run.app` | ❌ | `github-deploy-pms-sync-worker@gen-lang-client-0930444414.iam.gserviceaccount.com` |
+| **notification-services** | 8004 | pendiente primer deploy | ❌ | `github-deploy-notification@gen-lang-client-0930444414.iam.gserviceaccount.com` |
+
+### Comunicación entre servicios
+
+```
+user-services         → emite JWT RS256, expone /.well-known/jwks.json
+                            ↑ todos los demás validan JWT (decode no-verify)
+pms-integration       → valida JWT, publica a Kafka topic pms-sync-queue
+   ↓ Kafka 10.10.3.3:9092
+pms-sync-worker       → consume, persiste, idempotencia por event_id
+   ↓ HTTP interno POST /api/v1/notifications/internal
+notification-services → envía email/push, guarda histórico in-app
+```
+
+### Secret Manager — secrets por servicio (DEV `gen-lang-client-0930444414`)
+
+| Secret | Servicio que lo usa |
+|---|---|
+| `DATABASE_URL` | user-services, pms-integration, pms-sync-worker |
+| `DATABASE_URL_SYNC` | pms-sync-worker (conexión síncrona Alembic) |
+| `KAFKA_BOOTSTRAP_SERVERS` | pms-integration, pms-sync-worker |
+| `RSA_PRIVATE_KEY_B64` | user-services (firma JWT) |
+| `dev-travelhub-notification-db-url` | notification-services |
+| `dev-travelhub-sendgrid-api-key` | notification-services |
+| `dev-travelhub-fcm-credentials` | notification-services |
+| `dev-travelhub-internal-notify-token` | notification-services |
+
+> Nota: los primeros 4 usan naming plano (legacy). Los de notification-services ya tienen prefijo `dev-travelhub-`.
+> En PROD todos deben llevar prefijo `prod-travelhub-`.
+
+### Gateway — rutas configuradas (openapi-spec.yaml)
+
+Rutas **sin JWT** (públicas):
+- `POST /api/v1/auth/login` → user-services
+- `POST /api/v1/auth/register` → user-services
+- `POST /api/v1/auth/refresh` → user-services
+- `GET /.well-known/jwks.json` → user-services
+- `GET /health` → user-services
+
+Rutas **con JWT**:
+- `/api/v1/auth/*` → user-services
+- `/api/v1/admin/*` → user-services
+- `/api/v1/pms/*` → pms-integration-services
+- `/api/v1/notifications/*` → notification-services *(PLACEHOLDER — agregar cuando se despliegue)*
+- Demás servicios (search, booking, payments, inventory, cart) → PLACEHOLDER
+
+**Al desplegar un servicio nuevo:** actualizar `gateway/openapi-spec.yaml` (reemplazar PLACEHOLDER con URL real) y redesplegar con `bash deploy/deploy-gateway.sh`.
+
 ## Workload Identity Federation
 
 | Proyecto | Pool | Provider | Repos autorizados |
@@ -157,6 +214,30 @@ apitravelhub.site → 136.110.223.156 → LB (HTTPS + SSL) → Cloud Armor (WAF)
 | AH009 — RBAC | RBACFilter en cada microservicio (claims del JWT) |
 | AH007 — Cifrado JWT RS256 | API Gateway valida firma + backend valida claims de negocio |
 | AH016 — Rate limiting distribuido | Cloud Armor en borde de red (no por instancia) |
+
+## Decisiones técnicas críticas
+
+### Networking Cloud Run
+- **Direct VPC egress** (NO VPC connector): `--network=travelhub-vpc --subnet=subnet-services --vpc-egress=private-ranges-only`
+- Si el servicio ya tenía VPC connector, agregar `--clear-vpc-connector`
+- **asyncpg ≥ 0.30** obligatorio — versiones anteriores tienen bug SSL con direct VPC egress
+- `?ssl=disable` en `DATABASE_URL` (Cloud SQL via IP privada ya está cifrado por GCP)
+
+### JWT
+- Emitido por user-services, `kid: travelhub-key-1`, RS256
+- `iss: https://auth.travelhub.app`, `aud: travelhub-api`
+- JWKS endpoint: `https://user-services-ridyy4wz4q-uc.a.run.app/.well-known/jwks.json`
+- Los backends hacen **decode no-verify** (el gateway ya validó firma + exp + iss + aud)
+- El gateway reemplaza `Authorization` con su propio OIDC token → el JWT del usuario llega en `X-Forwarded-Authorization`
+
+### Cloud Deploy primer release
+Cuando es el primer release en una pipeline nueva, el canary (10%→50%) se salta y va directo a 100%. A partir del segundo release funciona completo.
+
+### Kafka (DEV)
+- Broker: `10.10.3.3:9092` (VM `travelhub-kafka`, zona `us-central1-c`)
+- Acceso admin: IAP tunnel → `gcloud compute ssh travelhub-kafka --zone=us-central1-c --tunnel-through-iap --project=gen-lang-client-0930444414`
+- Topics activos: `pms-sync-queue` (3p), `pms-sync-dlq` (1p)
+- Topics pendientes crear: `booking-events`, `payment-events`, `user-events`, `notification-dlq`
 
 ## NUNCA
 
