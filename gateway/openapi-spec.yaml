@@ -10,12 +10,14 @@
 #
 # Backends activos en DEV (gen-lang-client-0930444414):
 #   user-services             -> https://user-services-ridyy4wz4q-uc.a.run.app
-#   search-services           -> https://dev-search-service-app-service-154299161799.us-central1.run.app
-#   booking-services          -> https://dev-booking-service-app-service-154299161799.us-central1.run.app
+#   search-services           -> https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app
+#   booking-services          -> https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app
 #   pms-integration-services  -> https://pms-integration-services-ridyy4wz4q-uc.a.run.app
+#   pms-sync-worker           -> https://pms-sync-worker-ridyy4wz4q-uc.a.run.app
+#   notification-services     -> https://notification-services-ridyy4wz4q-uc.a.run.app
 #
 # Backends NO desplegados (placeholder devuelve 503):
-#   payments-services, inventory-services, notification-services, shopping-cart-services
+#   payments-services, inventory-services, shopping-cart-services
 #
 # CORS:
 #   Habilitado via x-google-endpoints.allowCors: true + bloque options en cada ruta.
@@ -306,7 +308,7 @@ paths:
 
   # ---------------------------------------------------------------------------
   # Search Service — Rutas PUBLICAS (sin JWT)
-  # Backend: dev-search-service-app-service-154299161799.us-central1.run.app
+  # Backend: dev-search-service-app-service-ridyy4wz4q-uc.a.run.app
   # Rutas expuestas directamente bajo /search/ para compatibilidad con el
   # mapeo actual del frontend (sin prefijo /api/v1/).
   # ---------------------------------------------------------------------------
@@ -316,7 +318,7 @@ paths:
       operationId: "HealthCheckSearchService"
       summary: "Health check del Search Service — no requiere JWT"
       x-google-backend:
-        address: "https://dev-search-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -325,7 +327,7 @@ paths:
       operationId: "HealthCheckSearchServiceCors"
       summary: "CORS preflight"
       x-google-backend:
-        address: "https://dev-search-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -336,7 +338,7 @@ paths:
       operationId: "SearchCities"
       summary: "Busqueda de ciudades disponibles con habitaciones — no requiere JWT"
       x-google-backend:
-        address: "https://dev-search-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -345,7 +347,7 @@ paths:
       operationId: "SearchCitiesCors"
       summary: "CORS preflight"
       x-google-backend:
-        address: "https://dev-search-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -384,7 +386,7 @@ paths:
           type: integer
           description: "Numero de habitaciones solicitadas"
       x-google-backend:
-        address: "https://dev-search-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -393,7 +395,7 @@ paths:
       operationId: "SearchRoomsCors"
       summary: "CORS preflight"
       x-google-backend:
-        address: "https://dev-search-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -422,7 +424,7 @@ paths:
           format: date
           description: "Fecha de salida (formato YYYY-MM-DD)"
       x-google-backend:
-        address: "https://dev-search-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -431,7 +433,7 @@ paths:
       operationId: "SearchDetailRoomCors"
       summary: "CORS preflight"
       x-google-backend:
-        address: "https://dev-search-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -439,7 +441,7 @@ paths:
 
   # ---------------------------------------------------------------------------
   # Booking Service — Rutas PUBLICAS (sin JWT)
-  # Backend: dev-booking-service-app-service-154299161799.us-central1.run.app
+  # Backend: dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app
   # Rutas expuestas bajo /api/booking/ (sin v1) por compatibilidad con el
   # mapeo actual del frontend.
   # ---------------------------------------------------------------------------
@@ -449,7 +451,7 @@ paths:
       operationId: "HealthCheckBookingService"
       summary: "Health check del Booking Service — no requiere JWT"
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -458,7 +460,7 @@ paths:
       operationId: "HealthCheckBookingServiceCors"
       summary: "CORS preflight"
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -475,7 +477,7 @@ paths:
           type: string
           description: "ID del hotel"
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -484,7 +486,7 @@ paths:
       operationId: "SearchHotelReviewCors"
       summary: "CORS preflight"
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -501,7 +503,7 @@ paths:
       security:
         - travelhub_jwt: []
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -512,7 +514,7 @@ paths:
       operationId: "BookingRoomCors"
       summary: "CORS preflight"
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -525,7 +527,7 @@ paths:
       security:
         - travelhub_jwt: []
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -536,7 +538,7 @@ paths:
       operationId: "BookingGetBookingsCors"
       summary: "CORS preflight"
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -554,7 +556,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -572,7 +574,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "201":
@@ -588,7 +590,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -607,7 +609,7 @@ paths:
           type: string
           description: "ID de la reserva a actualizar"
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -623,7 +625,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://dev-booking-service-app-service-154299161799.us-central1.run.app"
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":
@@ -727,7 +729,7 @@ paths:
 
   # ---------------------------------------------------------------------------
   # Notification Service — Rutas PROTEGIDAS (requieren JWT valido)
-  # Backend: NO DESPLEGADO — placeholder retorna 503
+  # Backend: notification-services-ridyy4wz4q-uc.a.run.app
   # ---------------------------------------------------------------------------
 
   /api/v1/notifications/{path}:
@@ -742,7 +744,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://notification-services-PLACEHOLDER.a.run.app"
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -758,7 +760,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://notification-services-PLACEHOLDER.a.run.app"
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":

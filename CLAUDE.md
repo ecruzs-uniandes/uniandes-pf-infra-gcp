@@ -114,7 +114,9 @@ O todo de una vez: `source config/environments/dev.env && bash deploy-all.sh`
 - **user-services:** `https://user-services-ridyy4wz4q-uc.a.run.app`
 - **pms-integration:** `https://pms-integration-services-ridyy4wz4q-uc.a.run.app`
 - **pms-sync-worker:** `https://pms-sync-worker-ridyy4wz4q-uc.a.run.app`
-- **notification-services:** pendiente primer deploy completo
+- **notification-services:** `https://notification-services-ridyy4wz4q-uc.a.run.app`
+- **search-service:** `https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app`
+- **booking-service:** `https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app`
 - **Kafka VM:** `travelhub-kafka` (zona `us-central1-c`, IP privada `10.10.3.3:9092`, solo IAP)
 
 ## Naming legacy en DEV
@@ -139,7 +141,9 @@ Los recursos del proyecto DEV (`gen-lang-client-0930444414`) **no tienen prefijo
 | **user-services** | 8000 | `https://user-services-ridyy4wz4q-uc.a.run.app` | `https://user-services-qhweqfkejq-uc.a.run.app` | `github-deploy@gen-lang-client-0930444414.iam.gserviceaccount.com` |
 | **pms-integration-services** | 8001 | `https://pms-integration-services-ridyy4wz4q-uc.a.run.app` | ❌ | `github-deploy-pms-int@gen-lang-client-0930444414.iam.gserviceaccount.com` |
 | **pms-sync-worker** | 8002 | `https://pms-sync-worker-ridyy4wz4q-uc.a.run.app` | ❌ | `github-deploy-pms-sync-worker@gen-lang-client-0930444414.iam.gserviceaccount.com` |
-| **notification-services** | 8004 | pendiente primer deploy | ❌ | `github-deploy-notification@gen-lang-client-0930444414.iam.gserviceaccount.com` |
+| **notification-services** | 8004 | `https://notification-services-ridyy4wz4q-uc.a.run.app` | ❌ | `github-deploy-notification@gen-lang-client-0930444414.iam.gserviceaccount.com` |
+| **search-service** | 8005 | `https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app` | ❌ | Cloud Build service account (compañero) |
+| **booking-service** | 8006 | `https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app` | ❌ | Cloud Build service account (compañero) |
 
 ### Comunicación entre servicios
 
@@ -182,8 +186,10 @@ Rutas **con JWT**:
 - `/api/v1/auth/*` → user-services
 - `/api/v1/admin/*` → user-services
 - `/api/v1/pms/*` → pms-integration-services
-- `/api/v1/notifications/*` → notification-services *(PLACEHOLDER — agregar cuando se despliegue)*
-- Demás servicios (search, booking, payments, inventory, cart) → PLACEHOLDER
+- `/api/v1/notifications/*` → notification-services
+- `/api/v1/search/*` → search-service (público — sin JWT)
+- `/api/v1/booking/*` → booking-service (mixto: ping/reviews sin JWT, resto con JWT)
+- Demás servicios (payments, inventory, cart) → PLACEHOLDER
 
 **Al desplegar un servicio nuevo:** actualizar `gateway/openapi-spec.yaml` (reemplazar PLACEHOLDER con URL real) y redesplegar con `bash deploy/deploy-gateway.sh`.
 
