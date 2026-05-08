@@ -109,7 +109,7 @@ O todo de una vez: `source config/environments/dev.env && bash deploy-all.sh`
 
 ## URLs del entorno DEV (recursos desplegados)
 
-- **LB (entrada):** `https://apitravelhub.site` (IP estática 136.110.223.156)
+- **LB (entrada):** `https://apitravelhubdev.site` (IP estática 136.110.223.156, cert SSL managed `dev-travelhub-ssl-managed-new`) — desde 2026-05-08
 - **Gateway (directo):** `https://travelhub-gateway-1yvtqj7r.uc.gateway.dev`
 - **user-services:** `https://user-services-ridyy4wz4q-uc.a.run.app`
 - **pms-integration:** `https://pms-integration-services-ridyy4wz4q-uc.a.run.app`
@@ -118,6 +118,20 @@ O todo de una vez: `source config/environments/dev.env && bash deploy-all.sh`
 - **search-service:** `https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app`
 - **booking-service:** `https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app`
 - **Kafka VM:** `travelhub-kafka` (zona `us-central1-c`, IP privada `10.10.3.3:9092`, solo IAP)
+
+## URLs del entorno PROD (desplegado 2026-05-08)
+
+- **LB (entrada):** `https://apitravelhub.site` (IP estática `34.49.119.31`, cert SSL managed `prod-travelhub-ssl-managed`)
+- **Gateway (directo):** `https://prod-travelhub-gateway-cfv1jc0r.uc.gateway.dev`
+- **user-services:** `https://user-services-qhweqfkejq-uc.a.run.app`
+- **pms-integration:** `https://pms-integration-services-qhweqfkejq-uc.a.run.app`
+- **pms-sync-worker:** `https://pms-sync-worker-qhweqfkejq-uc.a.run.app`
+- **notification-services:** `https://notification-services-qhweqfkejq-uc.a.run.app`
+- **search-service / booking-service:** ❌ no desplegados (compañeros pendientes — placeholder en gateway → 404)
+- **Kafka VM:** `prod-travelhub-kafka` (zona `us-central1-c`, IP **interna** `10.20.3.3:9092`, IP externa `34.70.192.34` solo para egress apt/docker)
+
+> Ver `gateway/openapi-spec-prod.yaml` para la spec PROD aplicada (config activa: `prod-travelhub-config-20260507-234148`).
+> Estado completo de PROD: `INFRA_STATUS_PROD.md` (en raíz del monorepo travelhub).
 
 ## Naming legacy en DEV
 
@@ -132,6 +146,13 @@ Los recursos del proyecto DEV (`gen-lang-client-0930444414`) **no tienen prefijo
 
 **Consecuencia:** si ejecutas `scripts/0X-*.sh` contra el proyecto DEV, los scripts NO encontrarán los recursos legacy y crearán duplicados. Para el DEV actual, usa `gcloud` directo con los nombres legacy, o corre los scripts solo contra PROD donde el naming sí es correcto (`prod-travelhub-*`).
 
+## Flujo de red (DEV vs PROD)
+
+```text
+DEV : apitravelhubdev.site → 136.110.223.156 → LB → (Cloud Armor sin reglas) → Gateway → Cloud Run
+PROD: apitravelhub.site    → 34.49.119.31    → LB → (Cloud Armor pendiente, cuota=0) → Gateway → Cloud Run
+```
+
 ## Microservicios — mapa completo
 
 > Contexto necesario para agregar rutas al gateway, crear secrets, o configurar WIF para un servicio nuevo.
@@ -139,11 +160,11 @@ Los recursos del proyecto DEV (`gen-lang-client-0930444414`) **no tienen prefijo
 | Servicio | Puerto | URL DEV | URL PROD | SA deploy (DEV) |
 |---|---|---|---|---|
 | **user-services** | 8000 | `https://user-services-ridyy4wz4q-uc.a.run.app` | `https://user-services-qhweqfkejq-uc.a.run.app` | `github-deploy@gen-lang-client-0930444414.iam.gserviceaccount.com` |
-| **pms-integration-services** | 8001 | `https://pms-integration-services-ridyy4wz4q-uc.a.run.app` | ❌ | `github-deploy-pms-int@gen-lang-client-0930444414.iam.gserviceaccount.com` |
-| **pms-sync-worker** | 8002 | `https://pms-sync-worker-ridyy4wz4q-uc.a.run.app` | ❌ | `github-deploy-pms-sync-worker@gen-lang-client-0930444414.iam.gserviceaccount.com` |
-| **notification-services** | 8004 | `https://notification-services-ridyy4wz4q-uc.a.run.app` | ❌ | `github-deploy-notification@gen-lang-client-0930444414.iam.gserviceaccount.com` |
-| **search-service** | 8005 | `https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app` | ❌ | Cloud Build service account (compañero) |
-| **booking-service** | 8006 | `https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app` | ❌ | Cloud Build service account (compañero) |
+| **pms-integration-services** | 8001 | `https://pms-integration-services-ridyy4wz4q-uc.a.run.app` | `https://pms-integration-services-qhweqfkejq-uc.a.run.app` | `github-deploy-pms-int@gen-lang-client-0930444414.iam.gserviceaccount.com` |
+| **pms-sync-worker** | 8002 | `https://pms-sync-worker-ridyy4wz4q-uc.a.run.app` | `https://pms-sync-worker-qhweqfkejq-uc.a.run.app` | `github-deploy-pms-sync-worker@gen-lang-client-0930444414.iam.gserviceaccount.com` |
+| **notification-services** | 8004 | `https://notification-services-ridyy4wz4q-uc.a.run.app` | `https://notification-services-qhweqfkejq-uc.a.run.app` | `github-deploy-notification@gen-lang-client-0930444414.iam.gserviceaccount.com` |
+| **search-service** | 8005 | `https://dev-search-service-app-service-ridyy4wz4q-uc.a.run.app` | ❌ no desplegado | Cloud Build service account (compañero) |
+| **booking-service** | 8006 | `https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app` | ❌ no desplegado | Cloud Build service account (compañero) |
 
 ### Comunicación entre servicios
 
@@ -151,7 +172,7 @@ Los recursos del proyecto DEV (`gen-lang-client-0930444414`) **no tienen prefijo
 user-services         → emite JWT RS256, expone /.well-known/jwks.json
                             ↑ todos los demás validan JWT (decode no-verify)
 pms-integration       → valida JWT, publica a Kafka topic pms-sync-queue
-   ↓ Kafka 10.10.3.3:9092
+   ↓ Kafka DEV 10.10.3.3:9092 / PROD 10.20.3.3:9092
 pms-sync-worker       → consume, persiste, idempotencia por event_id
    ↓ HTTP interno POST /api/v1/notifications/internal
 notification-services → envía email/push, guarda histórico in-app
@@ -171,7 +192,36 @@ notification-services → envía email/push, guarda histórico in-app
 | `dev-travelhub-internal-notify-token` | notification-services |
 
 > Nota: los primeros 4 usan naming plano (legacy). Los de notification-services ya tienen prefijo `dev-travelhub-`.
-> En PROD todos deben llevar prefijo `prod-travelhub-`.
+
+### Secret Manager — secrets en PROD (`travelhub-prod-492116`)
+
+Todos con prefijo `prod-travelhub-` excepto los reusados de DEV (legacy).
+
+| Secret | Uso |
+|---|---|
+| `DATABASE_URL` | user-services |
+| `DATABASE_URL_SYNC` | user-services (Alembic) |
+| `RSA_PRIVATE_KEY_B64` | user-services |
+| `prod-travelhub-db-password` | password de `travelhub_app` en Cloud SQL PROD |
+| `KAFKA_BOOTSTRAP_SERVERS` | `10.20.3.3:9092` (creado 2026-05-08) |
+| `PMS_DATABASE_HOST/PORT/NAME/USER/PASSWORD` | pms-integration, pms-sync-worker |
+| `NOTIFICATION_SERVICE_URL` | pms-sync-worker → notification (HTTP interno) |
+| `prod-travelhub-notification-db-url` | notification-services |
+| `prod-travelhub-sendgrid-api-key` | notification-services (PLACEHOLDER, sustituir antes de envíos reales) |
+| `prod-travelhub-fcm-credentials` | notification-services (PLACEHOLDER) |
+| `prod-travelhub-internal-notify-token` | notification-services (auth endpoint /internal) |
+
+### Estado de despliegue por servicio
+
+| Servicio | DEV | PROD |
+|---|---|---|
+| user-services | ✅ | ✅ |
+| pms-integration-services | ✅ | ✅ (2026-05-08) |
+| pms-sync-worker | ✅ | ✅ (2026-05-08) |
+| notification-services | ✅ | ✅ (2026-05-08, secrets sendgrid/fcm placeholder) |
+| search-service (compañero) | ✅ | ❌ (placeholder en gateway → 404) |
+| booking-service (compañero) | ✅ | ❌ (placeholder en gateway → 404) |
+| payments / inventory / shopping-cart | ❌ | ❌ |
 
 ### Gateway — rutas configuradas (openapi-spec.yaml)
 

@@ -1,10 +1,12 @@
-# TravelHub — Estado de Infraestructura GCP
+# TravelHub — Estado de Infraestructura GCP (DEV)
 
 > Proyecto: TravelHub — Grupo 9 (PF2 Sprint 1)
-> GCP Project: gen-lang-client-0930444414
-> Region: us-central1
-> Dominio: apitravelhub.site
-> Repo infra: uniandes-pf-infra-gcp
+> GCP Project DEV: `gen-lang-client-0930444414`
+> Region: `us-central1`
+> Dominio DEV: `apitravelhubdev.site` (desde 2026-05-08; previamente `apitravelhub.site` que se movió a PROD)
+> Repo infra: `uniandes-pf-infra-gcp`
+
+> **Para estado de PROD** (`travelhub-prod-492116`): ver `INFRA_STATUS_PROD.md` en la raíz del monorepo.
 
 ---
 

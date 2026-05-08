@@ -1,0 +1,879 @@
+# =============================================================================
+# TravelHub — API Gateway OpenAPI Specification (PROD — snapshot desplegado)
+# =============================================================================
+# NO EDITAR DIRECTAMENTE. Este archivo es un snapshot de la spec efectiva
+# generada por `scripts/08-gateway.sh` a partir de `openapi-spec.template.yaml`
+# usando envsubst con las URLs de `config/environments/dev.env`.
+#
+# Para regenerar tras cambios en URLs:
+#   source config/environments/dev.env && bash scripts/08-gateway.sh
+#
+# Backends activos en DEV (gen-lang-client-0930444414):
+#   user-services             -> https://user-services-qhweqfkejq-uc.a.run.app
+#   search-services           -> https://search-service-PLACEHOLDER.a.run.app
+#   booking-services          -> https://booking-service-PLACEHOLDER.a.run.app
+#   pms-integration-services  -> https://pms-integration-services-qhweqfkejq-uc.a.run.app
+#
+# Backends NO desplegados (placeholder devuelve 503):
+#   payments-services, inventory-services, notification-services, shopping-cart-services
+#
+# CORS:
+#   Habilitado via x-google-endpoints.allowCors: true + bloque options en cada ruta.
+#   El gateway responde los preflight OPTIONS directamente sin llegar al backend.
+#
+# Seguridad JWT:
+#   El gateway valida: firma RS256, issuer, audience, expiracion.
+#   Los claims de negocio (role, mfa_verified) los valida el backend.
+# =============================================================================
+
+swagger: "2.0"
+info:
+  title: "TravelHub API Gateway"
+  version: "1.0.0"
+  description: |
+    Gateway de entrada para TravelHub. Valida JWT a nivel de infraestructura
+    y rutea a microservicios en Cloud Run.
+
+host: "prod-travelhub-gateway-cfv1jc0r.uc.gateway.dev"
+basePath: "/"
+schemes:
+  - "https"
+produces:
+  - "application/json"
+consumes:
+  - "application/json"
+
+# =============================================================================
+# CORS — habilita preflight en todos los endpoints del gateway
+# =============================================================================
+x-google-endpoints:
+  - name: "prod-travelhub-gateway-cfv1jc0r.uc.gateway.dev"
+    allowCors: true
+
+# =============================================================================
+# Configuracion de seguridad JWT
+# =============================================================================
+securityDefinitions:
+  travelhub_jwt:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://auth.travelhub.app"
+    x-google-audiences: "travelhub-api"
+    x-google-jwks_uri: "https://user-services-qhweqfkejq-uc.a.run.app/.well-known/jwks.json"
+
+# =============================================================================
+# Rutas — Microservicios
+# =============================================================================
+paths:
+
+  # ---------------------------------------------------------------------------
+  # User Service — Rutas PUBLICAS (sin JWT)
+  # Backend: user-services-qhweqfkejq-uc.a.run.app
+  # ---------------------------------------------------------------------------
+
+  /.well-known/jwks.json:
+    get:
+      operationId: "GetJwks"
+      summary: "Endpoint JWKS publico — expone claves publicas RS256 para verificacion JWT"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "JWKS document"
+    options:
+      operationId: "GetJwksCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /health:
+    get:
+      operationId: "HealthCheck"
+      summary: "Health check global — no requiere JWT"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Servicio saludable"
+    options:
+      operationId: "HealthCheckCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /api/v1/auth/login:
+    post:
+      operationId: "AuthLogin"
+      summary: "Login — no requiere JWT. Retorna access token + refresh token"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Login exitoso, retorna JWT"
+    options:
+      operationId: "AuthLoginCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /api/v1/auth/register:
+    post:
+      operationId: "AuthRegister"
+      summary: "Registro de usuario — no requiere JWT"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "201":
+          description: "Usuario registrado"
+    options:
+      operationId: "AuthRegisterCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /api/v1/auth/refresh:
+    post:
+      operationId: "AuthRefresh"
+      summary: "Refresh token — no requiere JWT (usa refresh token en body)"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Nuevo access token emitido"
+    options:
+      operationId: "AuthRefreshCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # User Service — Rutas PROTEGIDAS (requieren JWT valido)
+  # El gateway valida firma/issuer/audience/expiracion antes de rutear.
+  # ---------------------------------------------------------------------------
+
+  /api/v1/auth/me:
+    get:
+      operationId: "GetUserInfo"
+      summary: "Informacion del usuario autenticado"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Informacion del usuario autenticado"
+        "401":
+          description: "JWT invalido o expirado — rechazado por gateway"
+    put:
+      operationId: "UpdateUserProfile"
+      summary: "Actualizar perfil del usuario autenticado"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Perfil actualizado"
+        "401":
+          description: "JWT invalido o expirado — rechazado por gateway"
+    options:
+      operationId: "AuthMeCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /api/v1/auth/mfa/setup:
+    post:
+      operationId: "MfaSetup"
+      summary: "Generar secreto TOTP para MFA"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Secreto TOTP generado"
+        "401":
+          description: "JWT invalido o expirado — rechazado por gateway"
+    options:
+      operationId: "MfaSetupCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /api/v1/auth/mfa/verify:
+    post:
+      operationId: "MfaVerify"
+      summary: "Verificar codigo TOTP y activar MFA"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "MFA activado"
+        "401":
+          description: "JWT invalido o expirado — rechazado por gateway"
+    options:
+      operationId: "MfaVerifyCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # User Service — Rutas ADMIN (requieren JWT + validacion RBAC en backend)
+  # El gateway solo valida el JWT. La autorizacion por rol (Chain of
+  # Responsibility) la ejecuta el backend al recibir la request.
+  # ---------------------------------------------------------------------------
+
+  /api/v1/admin/{path}:
+    get:
+      operationId: "AdminGet"
+      summary: "Panel admin — JWT validado en gateway, RBAC en backend"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Datos admin"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+        "403":
+          description: "Rol insuficiente — rechazado por Chain of Responsibility en backend"
+    options:
+      operationId: "AdminCors"
+      summary: "CORS preflight"
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://user-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # Search Service — Rutas PUBLICAS (sin JWT)
+  # Backend: search-service-PLACEHOLDER.a.run.app
+  # Rutas expuestas directamente bajo /search/ para compatibilidad con el
+  # mapeo actual del frontend (sin prefijo /api/v1/).
+  # ---------------------------------------------------------------------------
+
+  /search/ping:
+    get:
+      operationId: "HealthCheckSearchService"
+      summary: "Health check del Search Service — no requiere JWT"
+      x-google-backend:
+        address: "https://search-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Servicio saludable"
+    options:
+      operationId: "HealthCheckSearchServiceCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://search-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /search/search_cities:
+    get:
+      operationId: "SearchCities"
+      summary: "Busqueda de ciudades disponibles con habitaciones — no requiere JWT"
+      x-google-backend:
+        address: "https://search-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Ciudades disponibles"
+    options:
+      operationId: "SearchCitiesCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://search-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /search/search_rooms:
+    get:
+      operationId: "SearchRooms"
+      summary: "Busqueda de habitaciones disponibles — no requiere JWT"
+      parameters:
+        - name: ciudad
+          in: query
+          required: true
+          type: string
+          description: "Ciudad de busqueda"
+        - name: checkin
+          in: query
+          required: true
+          type: string
+          format: date
+          description: "Fecha de entrada (formato YYYY-MM-DD)"
+        - name: checkout
+          in: query
+          required: true
+          type: string
+          format: date
+          description: "Fecha de salida (formato YYYY-MM-DD)"
+        - name: group
+          in: query
+          required: true
+          type: integer
+          description: "Numero de huespedes"
+        - name: rooms
+          in: query
+          required: true
+          type: integer
+          description: "Numero de habitaciones solicitadas"
+      x-google-backend:
+        address: "https://search-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Resultados de busqueda"
+    options:
+      operationId: "SearchRoomsCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://search-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /search/detail_room:
+    get:
+      operationId: "SearchDetailRoom"
+      summary: "Detalle de habitacion — no requiere JWT"
+      parameters:
+        - name: habitacionId
+          in: query
+          required: true
+          type: string
+          description: "ID de la habitacion"
+        - name: checkin
+          in: query
+          required: true
+          type: string
+          format: date
+          description: "Fecha de entrada (formato YYYY-MM-DD)"
+        - name: checkout
+          in: query
+          required: true
+          type: string
+          format: date
+          description: "Fecha de salida (formato YYYY-MM-DD)"
+      x-google-backend:
+        address: "https://search-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Detalle de habitacion"
+    options:
+      operationId: "SearchDetailRoomCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://search-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # Booking Service — Rutas PUBLICAS (sin JWT)
+  # Backend: booking-service-PLACEHOLDER.a.run.app
+  # Rutas expuestas bajo /api/booking/ (sin v1) por compatibilidad con el
+  # mapeo actual del frontend.
+  # ---------------------------------------------------------------------------
+
+  /api/v1/booking/ping:
+    get:
+      operationId: "HealthCheckBookingService"
+      summary: "Health check del Booking Service — no requiere JWT"
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Servicio saludable"
+    options:
+      operationId: "HealthCheckBookingServiceCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /api/v1/booking/reviews_hotel:
+    get:
+      operationId: "SearchHotelReview"
+      summary: "Resenas del hotel — no requiere JWT"
+      parameters:
+        - name: hotelId
+          in: query
+          required: true
+          type: string
+          description: "ID del hotel"
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Resenas del hotel"
+    options:
+      operationId: "SearchHotelReviewCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # Booking Service — Rutas PROTEGIDAS (requieren JWT valido)
+  # ---------------------------------------------------------------------------
+
+  /api/v1/booking/booking_room:
+    post:
+      operationId: "BookingRoom"
+      summary: "Reservar una habitacion"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Reserva generada"
+        "401":
+          description: "JWT invalido o expirado — rechazado por gateway"
+    options:
+      operationId: "BookingRoomCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /api/v1/booking/get_bookings:
+    get:
+      operationId: "getBookings"
+      summary: "Obtener reservas"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Tus reservas"
+        "401":
+          description: "JWT invalido o expirado — rechazado por gateway"
+    options:
+      operationId: "BookingGetBookingsCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /api/v1/booking/{path}:
+    get:
+      operationId: "BookingServicesGet"
+      summary: "Consultar reservas"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Reservas del usuario"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    post:
+      operationId: "BookingServicesPost"
+      summary: "Crear reserva"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "201":
+          description: "Reserva creada"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    options:
+      operationId: "BookingServicesCors"
+      summary: "CORS preflight"
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  /api/v1/booking/update/{booking_id}:
+    patch:
+      operationId: "UpdateBookingStatus"
+      summary: "Actualizar estado de una reserva"
+      security:
+        - travelhub_jwt: [] 
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          type: string
+          description: "ID de la reserva a actualizar"
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Reserva actualizada"
+        "401":
+          description: "JWT invalido o expirado — rechazado por gateway"
+    options:
+      operationId: "UpdateBookingStatusCors"
+      summary: "CORS preflight"
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://booking-service-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # Payment Service — Rutas PROTEGIDAS (requieren JWT valido)
+  # Backend: NO DESPLEGADO — placeholder retorna 503
+  # ---------------------------------------------------------------------------
+
+  /api/v1/payments/{path}:
+    post:
+      operationId: "PaymentServices"
+      summary: "Procesar pago"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://payments-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Pago procesado"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    options:
+      operationId: "PaymentServicesCors"
+      summary: "CORS preflight"
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://payments-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # Inventory Service — Rutas PROTEGIDAS (requieren JWT valido)
+  # Backend: NO DESPLEGADO — placeholder retorna 503
+  # ---------------------------------------------------------------------------
+
+  /api/v1/inventory/{path}:
+    get:
+      operationId: "InventoryServicesGet"
+      summary: "Consultar inventario"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Inventario"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    put:
+      operationId: "InventoryServicesPut"
+      summary: "Actualizar inventario"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Inventario actualizado"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    options:
+      operationId: "InventoryServicesCors"
+      summary: "CORS preflight"
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # Notification Service — Rutas PROTEGIDAS (requieren JWT valido)
+  # Backend: NO DESPLEGADO — placeholder retorna 503
+  # ---------------------------------------------------------------------------
+
+  /api/v1/notifications/{path}:
+    get:
+      operationId: "NotificationServices"
+      summary: "Notificaciones del usuario"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://notification-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Notificaciones"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    options:
+      operationId: "NotificationServicesCors"
+      summary: "CORS preflight"
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://notification-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # PMS Integration Service — Rutas PROTEGIDAS (requieren JWT valido)
+  # Backend: pms-integration-services-qhweqfkejq-uc.a.run.app
+  # ---------------------------------------------------------------------------
+
+  /api/v1/pms/{path}:
+    get:
+      operationId: "PmsServicesGet"
+      summary: "Integracion PMS — consulta"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://pms-integration-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Datos PMS"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    post:
+      operationId: "PmsServicesPost"
+      summary: "Webhook PMS — sincronizacion entrante"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://pms-integration-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "PMS sincronizado"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    options:
+      operationId: "PmsServicesCors"
+      summary: "CORS preflight"
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://pms-integration-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
+  # Shopping Cart Service — Rutas PROTEGIDAS (requieren JWT valido)
+  # Backend: NO DESPLEGADO — placeholder retorna 503
+  # ---------------------------------------------------------------------------
+
+  /api/v1/cart/{path}:
+    get:
+      operationId: "CartServicesGet"
+      summary: "Consultar carrito de compras"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://shopping-cart-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Carrito"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    post:
+      operationId: "CartServicesPost"
+      summary: "Agregar item al carrito"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://shopping-cart-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "201":
+          description: "Item agregado al carrito"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    options:
+      operationId: "CartServicesCors"
+      summary: "CORS preflight"
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://shopping-cart-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
