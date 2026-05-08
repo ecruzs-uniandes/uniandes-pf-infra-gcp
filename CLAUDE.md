@@ -130,7 +130,7 @@ O todo de una vez: `source config/environments/dev.env && bash deploy-all.sh`
 - **search-service / booking-service:** ❌ no desplegados (compañeros pendientes — placeholder en gateway → 404)
 - **Kafka VM:** `prod-travelhub-kafka` (zona `us-central1-c`, IP **interna** `10.20.3.3:9092`, IP externa `34.70.192.34` solo para egress apt/docker)
 
-> Ver `gateway/openapi-spec-prod.yaml` para la spec PROD aplicada (config activa: `prod-travelhub-config-20260507-234148`).
+> Ver `gateway/openapi-spec-prod.yaml` para la spec PROD aplicada (config activa: `prod-travelhub-config-20260508-095948` — incluye fix de spec notifications con GET / + GET/PUT/POST /{path}).
 > Estado completo de PROD: `INFRA_STATUS_PROD.md` (en raíz del monorepo travelhub).
 
 ## Naming legacy en DEV

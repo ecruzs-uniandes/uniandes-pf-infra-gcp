@@ -730,10 +730,34 @@ paths:
   # Backend: NO DESPLEGADO — placeholder retorna 503
   # ---------------------------------------------------------------------------
 
+  /api/v1/notifications:
+    get:
+      operationId: "NotificationServicesList"
+      summary: "Lista paginada de notificaciones del usuario"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://notification-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Lista de notificaciones"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    options:
+      operationId: "NotificationServicesListCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://notification-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
   /api/v1/notifications/{path}:
     get:
-      operationId: "NotificationServices"
-      summary: "Notificaciones del usuario"
+      operationId: "NotificationServicesGet"
+      summary: "Obtener preferencias o notificaciones del usuario"
       security:
         - travelhub_jwt: []
       parameters:
@@ -746,7 +770,43 @@ paths:
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
-          description: "Notificaciones"
+          description: "Notificaciones / preferencias"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    put:
+      operationId: "NotificationServicesPut"
+      summary: "Actualizar preferencias del usuario"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://notification-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Preferencias actualizadas"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    post:
+      operationId: "NotificationServicesPost"
+      summary: "Marcar notificación como leída / read-all"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://notification-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Notificación marcada"
         "401":
           description: "JWT invalido — rechazado por gateway"
     options:
