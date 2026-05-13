@@ -732,6 +732,28 @@ paths:
   # Backend: notification-services-ridyy4wz4q-uc.a.run.app
   # ---------------------------------------------------------------------------
 
+  /api/v1/notifications/register-device:
+    get:
+      operationId: "NotificationServicesRegisterDevice"
+      summary: "Registrar device token (push)"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app/api/v1/notifications/register-device"
+      responses:
+        "200":
+          description: "Device registrado"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    options:
+      operationId: "NotificationServicesRegisterDeviceCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app/api/v1/notifications/register-device"
+      responses:
+        "204":
+          description: "CORS preflight"
+
   /api/v1/notifications/{path}:
     get:
       operationId: "NotificationServices"
