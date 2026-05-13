@@ -48,6 +48,7 @@ uniandes-pf-infra-gcp/
 │   ├── 04-private-access.sh
 │   ├── 05-cloud-armor.sh
 │   ├── 06-database.sh
+│   ├── 06b-database-replica.sh            ← cross-region DR replica (solo PROD)
 │   ├── 07-kafka.sh
 │   ├── 08-gateway.sh
 │   ├── 09-load-balancer.sh
@@ -55,6 +56,8 @@ uniandes-pf-infra-gcp/
 │   └── lib/
 │       ├── common.sh
 │       └── kafka-startup.sh
+├── runbooks/
+│   └── db-failover.md                     ← promover réplica us-east1 en caso de DR
 ├── cloud-armor/
 │   ├── security-policy.sh
 │   └── adaptive-protection.sh
@@ -207,8 +210,9 @@ Todos con prefijo `prod-travelhub-` excepto los reusados de DEV (legacy).
 | `PMS_DATABASE_HOST/PORT/NAME/USER/PASSWORD` | pms-integration, pms-sync-worker |
 | `NOTIFICATION_SERVICE_URL` | pms-sync-worker → notification (HTTP interno) |
 | `prod-travelhub-notification-db-url` | notification-services |
-| `prod-travelhub-sendgrid-api-key` | notification-services (PLACEHOLDER, sustituir antes de envíos reales) |
-| `prod-travelhub-fcm-credentials` | notification-services (PLACEHOLDER) |
+| `prod-travelhub-sendgrid-api-key` | notification-services ✅ v3 operativo desde 2026-05-12 (dominio `apitravelhub.site` autenticado, sender `noreply@apitravelhub.site`). Pendiente rotación. |
+| `prod-travelhub-fcm-credentials` | notification-services (PLACEHOLDER — en proceso 2026-05-12) |
+| `prod-travelhub-db-replica-host` | DR replica `prod-travelhub-db-replica-us-east1` IP `10.200.1.3` — usado por runbook de failover |
 | `prod-travelhub-internal-notify-token` | notification-services (auth endpoint /internal) |
 
 ### Estado de despliegue por servicio
@@ -218,7 +222,7 @@ Todos con prefijo `prod-travelhub-` excepto los reusados de DEV (legacy).
 | user-services | ✅ | ✅ |
 | pms-integration-services | ✅ | ✅ (2026-05-08) |
 | pms-sync-worker | ✅ | ✅ (2026-05-08) |
-| notification-services | ✅ | ✅ (2026-05-08, secrets sendgrid/fcm placeholder) |
+| notification-services | ✅ | ✅ (2026-05-08; SendGrid operativo 2026-05-12 con dominio verificado, FCM aún placeholder) |
 | search-service (compañero) | ✅ | ❌ (placeholder en gateway → 404) |
 | booking-service (compañero) | ✅ | ❌ (placeholder en gateway → 404) |
 | payments / inventory / shopping-cart | ❌ | ❌ |
@@ -253,7 +257,7 @@ Rutas **con JWT**:
 ## Cloud SQL PostgreSQL
 
 - **DEV:** instancia `travelhub-db`, IP privada `10.100.0.3`, BD `travelhub`, usuario `travelhub_app`
-- **PROD:** instancia `prod-travelhub-db`, IP privada `10.200.0.3`, BD `travelhub`
+- **PROD:** instancia `prod-travelhub-db`, IP privada `10.200.0.3`, BD `travelhub`. Cross-region DR replica `prod-travelhub-db-replica-us-east1` (IP `10.200.1.3`, us-east1-c) desde 2026-05-12 — hot standby, promoción manual. Backups + PITR habilitados (retención 7 días). Ver `runbooks/db-failover.md`.
 - Sin IP pública en ningún ambiente. Acceso solo desde `subnet-services` (direct VPC egress).
 
 ## Flujo de red
