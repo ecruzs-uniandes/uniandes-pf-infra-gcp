@@ -291,6 +291,78 @@ paths:
           description: "JWT invalido — rechazado por gateway"
         "403":
           description: "Rol insuficiente — rechazado por Chain of Responsibility en backend"
+    post:
+      operationId: "AdminPost"
+      summary: "Crear recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "201":
+          description: "Crear recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    put:
+      operationId: "AdminPut"
+      summary: "Actualizar recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Actualizar recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    patch:
+      operationId: "AdminPatch"
+      summary: "Patch parcial"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Patch parcial"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    delete:
+      operationId: "AdminDelete"
+      summary: "Eliminar recurso (soft)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Eliminar recurso (soft)"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
     options:
       operationId: "AdminCors"
       summary: "CORS preflight"
@@ -581,6 +653,60 @@ paths:
           description: "Reserva creada"
         "401":
           description: "JWT invalido — rechazado por gateway"
+    put:
+      operationId: "BookingSvcPut"
+      summary: "Actualizar recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Actualizar recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    patch:
+      operationId: "BookingSvcPatch"
+      summary: "Patch parcial"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Patch parcial"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    delete:
+      operationId: "BookingSvcDelete"
+      summary: "Eliminar recurso (soft)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://dev-booking-service-app-service-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Eliminar recurso (soft)"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
     options:
       operationId: "BookingServicesCors"
       summary: "CORS preflight"
@@ -655,6 +781,78 @@ paths:
           description: "Pago procesado"
         "401":
           description: "JWT invalido — rechazado por gateway"
+    get:
+      operationId: "PaymentsGet"
+      summary: "Consultar recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://payments-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Consultar recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    put:
+      operationId: "PaymentsPut"
+      summary: "Actualizar recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://payments-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Actualizar recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    patch:
+      operationId: "PaymentsPatch"
+      summary: "Patch parcial"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://payments-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Patch parcial"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    delete:
+      operationId: "PaymentsDelete"
+      summary: "Eliminar recurso (soft)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://payments-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Eliminar recurso (soft)"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
     options:
       operationId: "PaymentServicesCors"
       summary: "CORS preflight"
@@ -712,6 +910,60 @@ paths:
           description: "Inventario actualizado"
         "401":
           description: "JWT invalido — rechazado por gateway"
+    post:
+      operationId: "InventoryPost"
+      summary: "Crear recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "201":
+          description: "Crear recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    patch:
+      operationId: "InventoryPatch"
+      summary: "Patch parcial"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Patch parcial"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    delete:
+      operationId: "InventoryDelete"
+      summary: "Eliminar recurso (soft)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Eliminar recurso (soft)"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
     options:
       operationId: "InventoryServicesCors"
       summary: "CORS preflight"
@@ -731,6 +983,30 @@ paths:
   # Notification Service — Rutas PROTEGIDAS (requieren JWT valido)
   # Backend: notification-services-ridyy4wz4q-uc.a.run.app
   # ---------------------------------------------------------------------------
+
+  /api/v1/notifications:
+    get:
+      operationId: "NotificationServicesList"
+      summary: "Lista paginada de notificaciones del usuario"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Lista de notificaciones"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    options:
+      operationId: "NotificationServicesListCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
 
   /api/v1/notifications/register-device:
     get:
@@ -771,6 +1047,78 @@ paths:
       responses:
         "200":
           description: "Notificaciones"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    post:
+      operationId: "NotificationPost"
+      summary: "Crear recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "201":
+          description: "Crear recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    put:
+      operationId: "NotificationPut"
+      summary: "Actualizar recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Actualizar recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    patch:
+      operationId: "NotificationPatch"
+      summary: "Patch parcial"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Patch parcial"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    delete:
+      operationId: "NotificationDelete"
+      summary: "Eliminar recurso (soft)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Eliminar recurso (soft)"
         "401":
           description: "JWT invalido — rechazado por gateway"
     options:
@@ -830,6 +1178,60 @@ paths:
           description: "PMS sincronizado"
         "401":
           description: "JWT invalido — rechazado por gateway"
+    put:
+      operationId: "PmsPut"
+      summary: "Actualizar recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://pms-integration-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Actualizar recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    patch:
+      operationId: "PmsPatch"
+      summary: "Patch parcial"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://pms-integration-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Patch parcial"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    delete:
+      operationId: "PmsDelete"
+      summary: "Eliminar recurso (soft)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://pms-integration-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Eliminar recurso (soft)"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
     options:
       operationId: "PmsServicesCors"
       summary: "CORS preflight"
@@ -885,6 +1287,60 @@ paths:
       responses:
         "201":
           description: "Item agregado al carrito"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    put:
+      operationId: "CartPut"
+      summary: "Actualizar recurso"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://shopping-cart-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Actualizar recurso"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    patch:
+      operationId: "CartPatch"
+      summary: "Patch parcial"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://shopping-cart-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Patch parcial"
+        "401":
+          description: "JWT invalido — rechazado por gateway"
+    delete:
+      operationId: "CartDelete"
+      summary: "Eliminar recurso (soft)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          type: string
+      x-google-backend:
+        address: "https://shopping-cart-services-PLACEHOLDER.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Eliminar recurso (soft)"
         "401":
           description: "JWT invalido — rechazado por gateway"
     options:
