@@ -296,8 +296,9 @@ Cuando es el primer release en una pipeline nueva, el canary (10%→50%) se salt
 ### Kafka (DEV)
 - Broker: `10.10.3.3:9092` (VM `travelhub-kafka`, zona `us-central1-c`)
 - Acceso admin: IAP tunnel → `gcloud compute ssh travelhub-kafka --zone=us-central1-c --tunnel-through-iap --project=gen-lang-client-0930444414`
-- Topics activos: `pms-sync-queue` (3p), `pms-sync-dlq` (1p)
-- Topics pendientes crear: `booking-events`, `payment-events`, `user-events`, `notification-dlq`
+- Topics activos DEV: `pms-sync-queue` (3p), `pms-sync-dlq` (1p), `cancel_booking_queue`, `payments-queue`, **`inventory-rate-events`** (3p — 2026-05-13)
+- Topics activos PROD: `pms-sync-queue` (3p), `pms-sync-dlq` (1p), `booking-events` (3p), `payment-events` (3p), `user-events` (3p), `notification-dlq` (1p), **`inventory-rate-events`** (3p — 2026-05-13)
+- Crear nuevos topics: SSH a la VM Kafka via IAP y `sudo docker exec travelhub-kafka kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic <nombre> --partitions <n> --replication-factor 1`. El container se llama `travelhub-kafka` en ambos ambientes (mismo nombre dentro de la VM PROD).
 
 ## NUNCA
 
