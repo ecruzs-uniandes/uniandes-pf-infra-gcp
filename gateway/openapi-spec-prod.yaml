@@ -868,8 +868,142 @@ paths:
 
   # ---------------------------------------------------------------------------
   # Inventory Service — Rutas PROTEGIDAS (requieren JWT valido)
-  # Backend: NO DESPLEGADO — placeholder retorna 503
+  # Backend: inventory-services-qhweqfkejq-uc.a.run.app
+  # Schema canonical 2026-05-14: /habitaciones, /hoteles, /tarifas (espanol)
+  # Rutas multi-segmento explicitas (wildcard /{path} solo matchea 1 segmento).
   # ---------------------------------------------------------------------------
+
+  /api/v1/inventory/habitaciones/{habitacion_id}/tarifas:
+    get:
+      operationId: "InventoryListTarifasByHabitacion"
+      summary: "Listar tarifas de una habitacion"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200": {description: "Lista de tarifas"}
+        "401": {description: "JWT invalido"}
+    post:
+      operationId: "InventoryCreateTarifa"
+      summary: "Crear tarifa para una habitacion (publica evento Kafka)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "201": {description: "Tarifa creada"}
+        "401": {description: "JWT invalido"}
+    options:
+      operationId: "InventoryHabitacionTarifasCors"
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204": {description: "CORS preflight"}
+
+  /api/v1/inventory/hoteles/{hotel_id}/tarifas:
+    get:
+      operationId: "InventoryListTarifasByHotel"
+      summary: "Listar tarifas de un hotel"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200": {description: "Lista de tarifas"}
+        "401": {description: "JWT invalido"}
+    options:
+      operationId: "InventoryHotelTarifasCors"
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204": {description: "CORS preflight"}
+
+  # NOTE: /tarifas/vigente debe ir antes que /tarifas/{tarifa_id}
+  /api/v1/inventory/tarifas/vigente:
+    get:
+      operationId: "InventoryTarifaVigente"
+      summary: "Tarifa vigente (precioFinal calculado)"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200": {description: "Tarifa vigente"}
+        "401": {description: "JWT invalido"}
+    options:
+      operationId: "InventoryTarifaVigenteCors"
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204": {description: "CORS preflight"}
+
+  /api/v1/inventory/tarifas/{tarifa_id}:
+    get:
+      operationId: "InventoryGetTarifa"
+      summary: "Obtener tarifa por id"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200": {description: "Tarifa encontrada"}
+        "401": {description: "JWT invalido"}
+    patch:
+      operationId: "InventoryUpdateTarifa"
+      summary: "Actualizar tarifa"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200": {description: "Tarifa actualizada"}
+        "401": {description: "JWT invalido"}
+    delete:
+      operationId: "InventoryDeleteTarifa"
+      summary: "Hard delete tarifa (audit en tarifa_history)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204": {description: "Eliminada"}
+        "401": {description: "JWT invalido"}
+    options:
+      operationId: "InventoryTarifaByIdCors"
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204": {description: "CORS preflight"}
 
   /api/v1/inventory/{path}:
     get:
@@ -883,7 +1017,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -901,7 +1035,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -919,7 +1053,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "201":
@@ -937,7 +1071,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -955,7 +1089,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "200":
@@ -971,7 +1105,7 @@ paths:
           required: true
           type: string
       x-google-backend:
-        address: "https://inventory-services-PLACEHOLDER.a.run.app"
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         "204":

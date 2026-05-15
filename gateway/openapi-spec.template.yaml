@@ -242,10 +242,148 @@ paths:
         401:
           description: "JWT invalido"
 
+  # ---------------------------------------------------------------------------
+  # Inventory Service — Rutas multi-segment explicitas (schema canonical 2026-05-14)
+  # /habitaciones, /hoteles, /tarifas (espanol). El wildcard /{path} solo
+  # captura 1 segmento, por eso las multi-segment estan explicitas.
+  # ---------------------------------------------------------------------------
+
+  /api/v1/inventory/habitaciones/{habitacion_id}/tarifas:
+    get:
+      operationId: "inventoryListTarifasByHabitacion"
+      summary: "Listar tarifas de una habitacion"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Lista de tarifas"}
+        401: {description: "JWT invalido"}
+    post:
+      operationId: "inventoryCreateTarifa"
+      summary: "Crear tarifa para una habitacion (publica evento Kafka)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        201: {description: "Tarifa creada"}
+        401: {description: "JWT invalido"}
+    options:
+      operationId: "inventoryHabitacionTarifasCors"
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
+  /api/v1/inventory/hoteles/{hotel_id}/tarifas:
+    get:
+      operationId: "inventoryListTarifasByHotel"
+      summary: "Listar tarifas de un hotel"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Lista de tarifas"}
+        401: {description: "JWT invalido"}
+    options:
+      operationId: "inventoryHotelTarifasCors"
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
+  # NOTE: /tarifas/vigente debe ir antes que /tarifas/{tarifa_id}
+  /api/v1/inventory/tarifas/vigente:
+    get:
+      operationId: "inventoryTarifaVigente"
+      summary: "Tarifa vigente (precioFinal calculado)"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Tarifa vigente"}
+        401: {description: "JWT invalido"}
+    options:
+      operationId: "inventoryTarifaVigenteCors"
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
+  /api/v1/inventory/tarifas/{tarifa_id}:
+    get:
+      operationId: "inventoryGetTarifa"
+      summary: "Obtener tarifa por id"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Tarifa encontrada"}
+        401: {description: "JWT invalido"}
+    patch:
+      operationId: "inventoryUpdateTarifa"
+      summary: "Actualizar tarifa"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Tarifa actualizada"}
+        401: {description: "JWT invalido"}
+    delete:
+      operationId: "inventoryDeleteTarifa"
+      summary: "Hard delete tarifa (audit en tarifa_history)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "Eliminada"}
+        401: {description: "JWT invalido"}
+    options:
+      operationId: "inventoryTarifaByIdCors"
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
   /api/v1/inventory/{path}:
     get:
       operationId: "inventoryServicesGet"
-      summary: "Consultar inventario"
+      summary: "Consultar inventario (fallback wildcard 1 segmento: /health, /, /tarifas)"
       security:
         - travelhub_jwt: []
       x-google-backend:
@@ -259,24 +397,6 @@ paths:
       responses:
         200:
           description: "Inventario"
-        401:
-          description: "JWT invalido"
-    put:
-      operationId: "inventoryServicesPut"
-      summary: "Actualizar inventario"
-      security:
-        - travelhub_jwt: []
-      x-google-backend:
-        address: "${INVENTORY_SERVICES_URL}"
-        path_translation: APPEND_PATH_TO_ADDRESS
-      parameters:
-        - name: path
-          in: path
-          required: true
-          type: string
-      responses:
-        200:
-          description: "Inventario actualizado"
         401:
           description: "JWT invalido"
 
