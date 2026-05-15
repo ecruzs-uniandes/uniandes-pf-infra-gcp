@@ -910,6 +910,31 @@ paths:
       responses:
         "204": {description: "CORS preflight"}
 
+  /api/v1/inventory/habitaciones/{habitacion_id}/tarifas/base:
+    get:
+      operationId: "InventoryGetTarifaBase"
+      summary: "Tarifa BASE (descuento=0) vigente para fecha (default now), ignora promos"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200": {description: "Tarifa base"}
+        "404": {description: "No hay tarifa base vigente"}
+        "401": {description: "JWT invalido"}
+    options:
+      operationId: "InventoryHabitacionTarifaBaseCors"
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-qhweqfkejq-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204": {description: "CORS preflight"}
+
   /api/v1/inventory/hoteles/{hotel_id}/tarifas:
     get:
       operationId: "InventoryListTarifasByHotel"
