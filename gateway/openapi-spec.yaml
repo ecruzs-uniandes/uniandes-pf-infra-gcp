@@ -986,6 +986,32 @@ paths:
       responses:
         "204": {description: "CORS preflight"}
 
+  /api/v1/inventory/hoteles/{hotel_id}/habitaciones:
+    get:
+      operationId: "InventoryListHabitacionesByHotel"
+      summary: "Listar habitaciones de un hotel (vista admin)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200": {description: "Lista de habitaciones"}
+        "401": {description: "JWT invalido"}
+        "403": {description: "hotel_admin pidiendo hotel ajeno"}
+    options:
+      operationId: "InventoryHotelHabitacionesCors"
+      summary: "CORS preflight"
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "https://inventory-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204": {description: "CORS preflight"}
+
   # NOTE: /tarifas/vigente debe declararse ANTES que /tarifas/{tarifa_id}
   # para evitar que el gateway match "vigente" como tarifa_id.
   # PUBLICO (sin JWT): viajero anonimo consulta precio vigente antes de registrarse.
