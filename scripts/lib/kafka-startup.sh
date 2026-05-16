@@ -85,6 +85,15 @@ services:
       done
       kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --replication-factor 1 --partitions 3 --topic pms-sync-queue
       kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 --topic pms-sync-dlq
+      # Topics consumidos por notification-services (booking/payment/user events + DLQ propio).
+      # Productores: booking-services, payments-services, user-services. Sin estos topics,
+      # el consumer de notification falla al subscribirse (no hay auto-create habilitado).
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --replication-factor 1 --partitions 3 --topic booking-events
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --replication-factor 1 --partitions 3 --topic payment-events
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --replication-factor 1 --partitions 3 --topic user-events
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 --topic notification-dlq
+      # Topic emitido por inventory-services (consumido por search/booking).
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --replication-factor 1 --partitions 3 --topic inventory-rate-events
       echo 'Topics listos:'
       kafka-topics --list --bootstrap-server kafka:9092
       "
