@@ -1241,6 +1241,29 @@ paths:
         "204":
           description: "CORS preflight"
 
+  # PUBLICO (sin JWT): disparar notificación push por cambio de estado de reserva.
+  # Lo llama el booking-service del compañero cuando una reserva cambia de estado
+  # (PAID/CONFIRMED/CANCELED/REFUNDED) — el backend resuelve el destinatario via
+  # la tabla `reserva` (viajeroId → users.fcm_token). NO requiere JWT del viajero
+  # porque el caller es un servicio interno (booking) que ya tiene su propia
+  # auth/identidad.
+  /api/v1/notifications/send-notification:
+    post:
+      operationId: "NotificationServicesSendNotification"
+      summary: "Disparar push por cambio de estado de reserva. Publico."
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app/api/v1/notifications/send-notification"
+      responses:
+        "200": {description: "Notificación enviada / skipped"}
+        "404": {description: "Reserva o user.fcm_token no existe"}
+    options:
+      operationId: "NotificationServicesSendNotificationCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://notification-services-ridyy4wz4q-uc.a.run.app/api/v1/notifications/send-notification"
+      responses:
+        "204": {description: "CORS preflight"}
+
   /api/v1/notifications/{path}:
     get:
       operationId: "NotificationServices"
