@@ -285,12 +285,11 @@ paths:
       responses:
         204: {description: "CORS preflight"}
 
+  # PUBLICO (sin JWT): viajero anonimo consulta tarifa base antes de registrarse
   /api/v1/inventory/habitaciones/{habitacion_id}/tarifas/base:
     get:
       operationId: "inventoryGetTarifaBase"
-      summary: "Tarifa BASE (descuento=0) vigente para fecha, ignora promos"
-      security:
-        - travelhub_jwt: []
+      summary: "Tarifa BASE (descuento=0) vigente para fecha, ignora promos. Publico."
       parameters:
         - {name: habitacion_id, in: path, required: true, type: string}
       x-google-backend:
@@ -299,7 +298,6 @@ paths:
       responses:
         200: {description: "Tarifa base"}
         404: {description: "No hay tarifa base vigente"}
-        401: {description: "JWT invalido"}
     options:
       operationId: "inventoryHabitacionTarifaBaseCors"
       parameters:
@@ -334,19 +332,42 @@ paths:
       responses:
         204: {description: "CORS preflight"}
 
+  /api/v1/inventory/hoteles/{hotel_id}/habitaciones:
+    get:
+      operationId: "inventoryListHabitacionesByHotel"
+      summary: "Listar habitaciones de un hotel (vista admin)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Lista de habitaciones"}
+        401: {description: "JWT invalido"}
+        403: {description: "hotel_admin pidiendo hotel ajeno"}
+    options:
+      operationId: "inventoryHotelHabitacionesCors"
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
   # NOTE: /tarifas/vigente debe ir antes que /tarifas/{tarifa_id}
+  # PUBLICO (sin JWT): viajero anonimo consulta precio vigente antes de registrarse.
   /api/v1/inventory/tarifas/vigente:
     get:
       operationId: "inventoryTarifaVigente"
-      summary: "Tarifa vigente (precioFinal calculado)"
-      security:
-        - travelhub_jwt: []
+      summary: "Tarifa vigente (precioFinal calculado). Publico."
       x-google-backend:
         address: "${INVENTORY_SERVICES_URL}"
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         200: {description: "Tarifa vigente"}
-        401: {description: "JWT invalido"}
     options:
       operationId: "inventoryTarifaVigenteCors"
       x-google-backend:
