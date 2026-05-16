@@ -446,6 +446,25 @@ paths:
         401:
           description: "JWT invalido"
 
+  # PUBLICO (sin JWT): disparar push por cambio de estado de reserva.
+  # Lo llama el booking-service del compañero — no requiere JWT del viajero.
+  /api/v1/notifications/send-notification:
+    post:
+      operationId: "notificationServicesSendNotification"
+      summary: "Disparar push por cambio de estado de reserva. Publico."
+      x-google-backend:
+        address: "${NOTIFICATION_SERVICES_URL}/api/v1/notifications/send-notification"
+      responses:
+        200: {description: "Notificación enviada / skipped"}
+        404: {description: "Reserva o user.fcm_token no existe"}
+    options:
+      operationId: "notificationServicesSendNotificationCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "${NOTIFICATION_SERVICES_URL}/api/v1/notifications/send-notification"
+      responses:
+        204: {description: "CORS preflight"}
+
   /api/v1/notifications/{path}:
     get:
       operationId: "notificationServices"
