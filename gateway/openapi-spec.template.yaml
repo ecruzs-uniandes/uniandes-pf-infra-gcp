@@ -522,6 +522,28 @@ paths:
           description: "JWT invalido"
 
   # ---------- Rutas ADMIN (requieren JWT + validacion RBAC en backend) ----------
+  # NOTA: rutas multi-segment requieren declaracion explicita.
+
+  /api/v1/admin/users/promote:
+    post:
+      operationId: "adminPromoteUser"
+      summary: "Promover usuario a admin_hotel (requiere platform_admin)"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "${USER_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Usuario promovido"}
+        401: {description: "JWT invalido"}
+        403: {description: "No es platform_admin"}
+    options:
+      operationId: "adminPromoteUserCors"
+      x-google-backend:
+        address: "${USER_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
 
   /api/v1/admin/{path}:
     get:

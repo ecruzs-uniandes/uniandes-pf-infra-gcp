@@ -269,7 +269,31 @@ paths:
   # User Service — Rutas ADMIN (requieren JWT + validacion RBAC en backend)
   # El gateway solo valida el JWT. La autorizacion por rol (Chain of
   # Responsibility) la ejecuta el backend al recibir la request.
+  # NOTA: OpenAPI 2 {path} captura solo 1 segmento. Rutas multi-segment
+  # (admin/users/promote) requieren declaracion explicita.
   # ---------------------------------------------------------------------------
+
+  /api/v1/admin/users/promote:
+    post:
+      operationId: "AdminPromoteUser"
+      summary: "Promover usuario a admin_hotel (requiere platform_admin)"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200": {description: "Usuario promovido"}
+        "401": {description: "JWT invalido"}
+        "403": {description: "No es platform_admin"}
+        "404": {description: "Usuario no encontrado"}
+    options:
+      operationId: "AdminPromoteUserCors"
+      x-google-backend:
+        address: "https://user-services-ridyy4wz4q-uc.a.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204": {description: "CORS preflight"}
 
   /api/v1/admin/{path}:
     get:
