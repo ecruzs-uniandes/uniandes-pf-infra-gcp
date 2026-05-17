@@ -242,10 +242,194 @@ paths:
         401:
           description: "JWT invalido"
 
+  # ---------------------------------------------------------------------------
+  # Inventory Service — Rutas multi-segment explicitas (schema canonical 2026-05-14)
+  # /habitaciones, /hoteles, /tarifas (espanol). El wildcard /{path} solo
+  # captura 1 segmento, por eso las multi-segment estan explicitas.
+  # ---------------------------------------------------------------------------
+
+  /api/v1/inventory/habitaciones/{habitacion_id}/tarifas:
+    get:
+      operationId: "inventoryListTarifasByHabitacion"
+      summary: "Listar tarifas de una habitacion"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Lista de tarifas"}
+        401: {description: "JWT invalido"}
+    post:
+      operationId: "inventoryCreateTarifa"
+      summary: "Crear tarifa para una habitacion (publica evento Kafka)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        201: {description: "Tarifa creada"}
+        401: {description: "JWT invalido"}
+    options:
+      operationId: "inventoryHabitacionTarifasCors"
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
+  # PUBLICO (sin JWT): viajero anonimo consulta tarifa base antes de registrarse
+  /api/v1/inventory/habitaciones/{habitacion_id}/tarifas/base:
+    get:
+      operationId: "inventoryGetTarifaBase"
+      summary: "Tarifa BASE (descuento=0) vigente para fecha, ignora promos. Publico."
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Tarifa base"}
+        404: {description: "No hay tarifa base vigente"}
+    options:
+      operationId: "inventoryHabitacionTarifaBaseCors"
+      parameters:
+        - {name: habitacion_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
+  /api/v1/inventory/hoteles/{hotel_id}/tarifas:
+    get:
+      operationId: "inventoryListTarifasByHotel"
+      summary: "Listar tarifas de un hotel"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Lista de tarifas"}
+        401: {description: "JWT invalido"}
+    options:
+      operationId: "inventoryHotelTarifasCors"
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
+  /api/v1/inventory/hoteles/{hotel_id}/habitaciones:
+    get:
+      operationId: "inventoryListHabitacionesByHotel"
+      summary: "Listar habitaciones de un hotel (vista admin)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Lista de habitaciones"}
+        401: {description: "JWT invalido"}
+        403: {description: "hotel_admin pidiendo hotel ajeno"}
+    options:
+      operationId: "inventoryHotelHabitacionesCors"
+      parameters:
+        - {name: hotel_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
+  # NOTE: /tarifas/vigente debe ir antes que /tarifas/{tarifa_id}
+  # PUBLICO (sin JWT): viajero anonimo consulta precio vigente antes de registrarse.
+  /api/v1/inventory/tarifas/vigente:
+    get:
+      operationId: "inventoryTarifaVigente"
+      summary: "Tarifa vigente (precioFinal calculado). Publico."
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Tarifa vigente"}
+    options:
+      operationId: "inventoryTarifaVigenteCors"
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
+  /api/v1/inventory/tarifas/{tarifa_id}:
+    get:
+      operationId: "inventoryGetTarifa"
+      summary: "Obtener tarifa por id"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Tarifa encontrada"}
+        401: {description: "JWT invalido"}
+    patch:
+      operationId: "inventoryUpdateTarifa"
+      summary: "Actualizar tarifa"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Tarifa actualizada"}
+        401: {description: "JWT invalido"}
+    delete:
+      operationId: "inventoryDeleteTarifa"
+      summary: "Hard delete tarifa (audit en tarifa_history)"
+      security:
+        - travelhub_jwt: []
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "Eliminada"}
+        401: {description: "JWT invalido"}
+    options:
+      operationId: "inventoryTarifaByIdCors"
+      parameters:
+        - {name: tarifa_id, in: path, required: true, type: string}
+      x-google-backend:
+        address: "${INVENTORY_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
+
   /api/v1/inventory/{path}:
     get:
       operationId: "inventoryServicesGet"
-      summary: "Consultar inventario"
+      summary: "Consultar inventario (fallback wildcard 1 segmento: /health, /, /tarifas)"
       security:
         - travelhub_jwt: []
       x-google-backend:
@@ -261,24 +445,25 @@ paths:
           description: "Inventario"
         401:
           description: "JWT invalido"
-    put:
-      operationId: "inventoryServicesPut"
-      summary: "Actualizar inventario"
-      security:
-        - travelhub_jwt: []
+
+  # PUBLICO (sin JWT): disparar push por cambio de estado de reserva.
+  # Lo llama el booking-service del compañero — no requiere JWT del viajero.
+  /api/v1/notifications/send-notification:
+    post:
+      operationId: "notificationServicesSendNotification"
+      summary: "Disparar push por cambio de estado de reserva. Publico."
       x-google-backend:
-        address: "${INVENTORY_SERVICES_URL}"
-        path_translation: APPEND_PATH_TO_ADDRESS
-      parameters:
-        - name: path
-          in: path
-          required: true
-          type: string
+        address: "${NOTIFICATION_SERVICES_URL}/api/v1/notifications/send-notification"
       responses:
-        200:
-          description: "Inventario actualizado"
-        401:
-          description: "JWT invalido"
+        200: {description: "Notificación enviada / skipped"}
+        404: {description: "Reserva o user.fcm_token no existe"}
+    options:
+      operationId: "notificationServicesSendNotificationCors"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "${NOTIFICATION_SERVICES_URL}/api/v1/notifications/send-notification"
+      responses:
+        204: {description: "CORS preflight"}
 
   /api/v1/notifications/{path}:
     get:
@@ -377,6 +562,28 @@ paths:
           description: "JWT invalido"
 
   # ---------- Rutas ADMIN (requieren JWT + validacion RBAC en backend) ----------
+  # NOTA: rutas multi-segment requieren declaracion explicita.
+
+  /api/v1/admin/users/promote:
+    post:
+      operationId: "adminPromoteUser"
+      summary: "Promover usuario a admin_hotel (requiere platform_admin)"
+      security:
+        - travelhub_jwt: []
+      x-google-backend:
+        address: "${USER_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        200: {description: "Usuario promovido"}
+        401: {description: "JWT invalido"}
+        403: {description: "No es platform_admin"}
+    options:
+      operationId: "adminPromoteUserCors"
+      x-google-backend:
+        address: "${USER_SERVICES_URL}"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        204: {description: "CORS preflight"}
 
   /api/v1/admin/{path}:
     get:
