@@ -16,7 +16,7 @@ subnet_name = "subnet-services"
 ###########################################################
 ingress_type = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
 security_type =  "allUsers"
-load_balancer_uri = "https://apitravelhub.site" #Modificar para produccion
+load_balancer_uri = "https://apitravelhubdev.site" #Modificar para produccion
 ###########################################################
 # CI/CD Variables
 ###########################################################
@@ -37,4 +37,5 @@ env_vars = {
     DB_NAME = "travelhub"
     DB_PASSWORD = "lALk8rAOj1TSltRQzGavZdBCrSu67ZJg"
     ENVIRONMENT = "prod"
+    INVENTORY_SERVICE_URL = "https://inventory-services-154299161799.us-central1.run.app"
 }

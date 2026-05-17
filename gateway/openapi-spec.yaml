@@ -565,6 +565,30 @@ paths:
           description: "CORS preflight"
 
   # ---------------------------------------------------------------------------
+  # Booking Worker
+  # ---------------------------------------------------------------------------
+
+  /worker/booking_cancelation/health:
+    get:
+      operationId: "HealthCheckBookingWorker"
+      summary: "Health check del worker booking — no requiere JWT"
+      x-google-backend:
+        address: "https://dev-booking-worker-app-service-154299161799.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "200":
+          description: "Servicio saludable"
+    options:
+      operationId: "HealthCheckBookingWorkerCORS"
+      summary: "CORS preflight"
+      x-google-backend:
+        address: "https://dev-booking-worker-app-service-154299161799.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        "204":
+          description: "CORS preflight"
+
+  # ---------------------------------------------------------------------------
   # Booking Service — Rutas PROTEGIDAS (requieren JWT valido)
   # ---------------------------------------------------------------------------
 

@@ -5,7 +5,7 @@ ZONE=us-central1-a
 #Terraform configuration
 ROOT := $(shell pwd)
 S3   := $(ROOT)/stacks/bucket_backend
-ENV  := $(ROOT)/environments/booking_service
+ENV  := $(ROOT)/environments/cancel_worker
 MAIN := $(ROOT)/stacks/main
 
 init-project:
